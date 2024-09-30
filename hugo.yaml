@@ -9,7 +9,9 @@ outputs:
     - RSS
     - JSON # necessary for search
 
-
+taxonomies:
+  category: categories
+  tag: tags
 
 layoutDir: "layouts"
 params:
