@@ -8,4 +8,4 @@ tags = ['Danylo', 'Victoria']
 
 
 
-I love danylo who made this beautiful website for me!!!
+I love danylo who made this beautiful website for me!!! Very much !!!
