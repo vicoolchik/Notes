@@ -1,0 +1,34 @@
+baseURL: https://example.org/
+languageCode: en-us
+title: victoria notes
+theme: ["PaperMod"]
+
+outputs:
+  home:
+    - HTML
+    - RSS
+    - JSON # necessary for search
+
+
+
+layoutDir: "layouts"
+params:
+  ShowToc: true
+  ShowReadingTime: true
+  ShowBreadCrumbs: true
+  ShowPostNavLinks: true
+  sectionPagesMenu: main
+
+  homeInfoParams:
+    Title: Notes
+    Content: "I'm a .Net developer who are interested in learning new things. I write about software development and other topics which I find interesting."
+
+  socialIcons: # optional
+    - name: Linkedin
+      url: "https://www.linkedin.com/in/victoria-koval-27756922b/"
+    - name: Telegram
+      url: "https://t.me/Vicoolchik"
+    - name: email
+      url: "mailto:bictoriakoval16@gmail.com
+
+"
