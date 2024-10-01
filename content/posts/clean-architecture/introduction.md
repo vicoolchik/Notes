@@ -11,7 +11,7 @@ tags = ['Clean Architecture']
 
 > **Software architecture** defines the structure of a system, its components, their relationships, and design principles to ensure the system meets its functional and non-functional needs.
 
-### Key Concepts
+#### Key Concepts
 
 <p class="definition-term"><strong>Components</strong></p>
 <div class="definition-content">The building blocks of the system, including services, modules, and databases.</div>
