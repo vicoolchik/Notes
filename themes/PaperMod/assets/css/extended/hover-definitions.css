@@ -1,0 +1,14 @@
+.definition-content {
+  display: none;
+  margin-top: 5px;
+}
+
+.definition-term:hover + .definition-content {
+  display: block;
+}
+
+.definition-term {
+  cursor: pointer;
+  color: blue;
+  text-decoration: underline;
+}
