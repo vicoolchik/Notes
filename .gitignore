@@ -1,3 +1,7 @@
 .hugo_build.lock
 public
 .vs
+resources
+node_modules/
+postcss.config.js
+

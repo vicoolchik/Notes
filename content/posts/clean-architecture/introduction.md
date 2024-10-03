@@ -7,26 +7,53 @@ tags = ['Clean Architecture']
 
 # Introduction to Clean Architecture
 
-## Software Architecture 
+## Software Architecture
 
 > **Software architecture** defines the structure of a system, its components, their relationships, and design principles to ensure the system meets its functional and non-functional needs.
 
-#### Key Concepts
+### Key Concepts
+<details>
+  <summary><strong>Components</strong></summary>
+  <p>The building blocks of the system, including services, modules, and databases.</p>
+</details>
 
-<p class="definition-term"><strong>Components</strong></p>
-<div class="definition-content">The building blocks of the system, including services, modules, and databases.</div>
+<details>
+  <summary><strong>Relationships</strong></summary>
+  <p>Defines how components communicate and interact with each other.</p>
+</details>
 
-<p class="definition-term"><strong>Relationships</strong></p>
-<div class="definition-content">Defines how components communicate and interact with each other.</div>
+<details>
+  <summary><strong>Design Principles</strong></summary>
+  <p>Guidelines that ensure the system is scalable, maintainable, and secure.</p>
+</details>
 
-<p class="definition-term"><strong>Design Principles</strong></p>
-<div class="definition-content">Guidelines that ensure the system is scalable, maintainable, and secure.</div>
+<details>
+  <summary><strong>Architectural Patterns</strong></summary>
+  <p>The overall structure used, such as microservices, layered architecture, etc.</p>
+</details>
+
+<details>
+  <summary><strong>Technology Stack</strong></summary>
+  <p>The programming languages, frameworks, and tools used to build the system.</p>
+</details>
 
 ## Architecture Pattern:
 
 > **Architecture Pattern** is a general, reusable resolution to a commonly occurring problem in software architecture within a given context.
 
  ## Examples of Architecture Patterns:
+
+ ```mermaid
+graph TD;
+    A[Presentation Layer] --> B[Business Logic Layer];
+    B --> C[Data Access Layer];
+    C --> D[(DB)];
+    
+    style A fill:#ADD8E6,stroke:#333,stroke-width:2px;
+    style B fill:#FFB6C1,stroke:#333,stroke-width:2px;
+    style C fill:#90EE90,stroke:#333,stroke-width:2px;
+    style D fill:#D8BFD8,stroke:#333,stroke-width:2px;
+```
 
 | **Architecture Pattern**  | **Description**                                                                                                                                 | **Focus Area**                                  |
 |---------------------------|-------------------------------------------------------------------------------------------------------------------------------------------------|------------------------------------------------|

@@ -31,6 +31,9 @@ params:
     - name: Telegram
       url: "https://t.me/Vicoolchik"
     - name: email
-      url: "mailto:bictoriakoval16@gmail.com
+      url: "mailto:bictoriakoval16@gmail.com"
 
-"
+markup:
+  goldmark:
+    renderer:
+      unsafe: true

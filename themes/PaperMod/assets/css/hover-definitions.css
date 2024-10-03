@@ -12,3 +12,7 @@
   color: blue;
   text-decoration: underline;
 }
+.mermaid-container {
+  max-width: 800px;
+  margin: 0 auto;
+}
