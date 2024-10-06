@@ -58,7 +58,34 @@ tags = ['Clean Architecture']
   <tr id="ntier" style="display:none;">
     <td colspan="3">
 
-![Layered Architecture](/images/layered-architecture-diagram1.png)
+### Layered Architecture Flow
+
+The diagram represents the flow in an N-tier architecture where:
+
+- The **Presentation Layer** interacts with the **Business Logic Layer**.
+- The **Business Logic Layer** communicates with the **Data Access Layer**.
+- The **Data Access Layer** accesses the **Database (DB)**.
+
+Each layer is visually distinct, demonstrating the separation of concerns in a typical multi-tier architecture.
+
+<img src="/images/layered-architecture-diagram1.png" alt="Layered Architecture">
+
+### Architectural Issues
+
+In this architecture, a presentation layer directly accesses the data repository, as shown in the following code:
+
+```csharp
+// Tier N-2 (e.g., Presentation Layer)
+var user = _userRepository.GetById(userId);
+
+// Tier N (Data Access Layer)
+public interface IUserRepository
+{
+    User GetById(Guid id);
+}
+```
+**Transitive Layer Access** - layers become dependent on each other, making the system harder to maintain and scale.
+
    </td>
   </tr>
 
@@ -91,8 +118,21 @@ tags = ['Clean Architecture']
   </tr>
   <tr id="clean" style="display:none;">
     <td colspan="3">
-      <img src="/images/clean-architecture-diagram.png" alt="Clean Architecture Diagram">
-    </td>
+
+### Clean Architecture
+
+Clean architecture separates the software into layers with a **dependency rule** that layers only point **inwards**.
+
+- **Inner layers** contain the **business logic**.
+- **Outer layers** contain **infrastructure** and **interaction with the outer world**.
+
+This structure helps maintain a clear separation of concerns and ensures that the core business logic is independent of external systems or user interface concerns.
+
+<div style="display: flex; align-items: center;">
+  <img src="/images/clean-architecture-diagram1.png" alt="Clean Architecture 1" width="400">
+  <img src="/images/clean-architecture-diagram2.png" alt="Clean Architecture 2" width="300">
+</div>
+
   </tr>
 
   <tr style="background-color:#b2c4fe;">
