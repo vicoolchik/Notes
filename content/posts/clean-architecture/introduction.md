@@ -41,27 +41,112 @@ tags = ['Clean Architecture']
 
 > **Architecture Pattern** is a general, reusable resolution to a commonly occurring problem in software architecture within a given context.
 
- ## Examples of Architecture Patterns:
+## Examples of Architecture Patterns:
 
- ```mermaid
-graph TD;
-    A[Presentation Layer] --> B[Business Logic Layer];
-    B --> C[Data Access Layer];
-    C --> D[(DB)];
-    
-    style A fill:#ADD8E6,stroke:#333,stroke-width:2px;
-    style B fill:#FFB6C1,stroke:#333,stroke-width:2px;
-    style C fill:#90EE90,stroke:#333,stroke-width:2px;
-    style D fill:#D8BFD8,stroke:#333,stroke-width:2px;
-```
+<table style="color:#000000;">
+  <tr style="background-color:#edf2fb;">
+    <th>Architecture Pattern</th>
+    <th>Description</th>
+    <th>Focus Area</th>
+  </tr>
 
-| **Architecture Pattern**  | **Description**                                                                                                                                 | **Focus Area**                                  |
-|---------------------------|-------------------------------------------------------------------------------------------------------------------------------------------------|------------------------------------------------|
-| **N-tier/Layered Architecture**        | Organizes software into layers, each responsible for a specific aspect (e.g., presentation, business logic, data access).                                      | <span style="color:#f0e68c;">Separation of concerns across layers</span>           |
-| **Hexagonal/Ports and Adapters Architecture** | Focuses on keeping the core logic independent of external factors (e.g., databases, UI, APIs).                                                               | <span style="color:#62a1db;">Independence from external systems</span>             |
-| **Microservices Architecture**          | Structures applications as a collection of loosely coupled, independently deployable services.                                                               | <span style="color:#f0e68c;">Decoupling and scalability</span>                     |
-| **Clean Architecture**                 | Emphasizes separating concerns and keeping core logic independent of infrastructure and frameworks.                                                          | <span style="color:#62a1db;">Independence of core logic</span>                     |
-| **Service-Oriented Architecture**        | Breaks down systems into services that communicate over a network.                                                                                           | <span style="color:#f0e68c;">Distributed services over a network</span>            |
-| **Modular Monolith Architecture**        | Combines modular components within a single deployable unit, allowing easier refactoring and scaling.                                                        | <span style="color:#62a1db;">Modularity within a single unit</span>                |
-| **Event-Driven Architecture**            | Uses events as triggers for communication between decoupled components or services.                                                                          | <span style="color:#f0e68c;">Asynchronous event handling</span>                    |
-| **MVC, MVP, MVVM**                       | Patterns for organizing the presentation layer in software, separating concerns between the model (data), view (UI), and controller/presenter (logic).        | <span style="color:#62a1db;">Presentation layer organization</span>                |
+  <tr style="background-color:#edf2fb;">
+    <td><button style="color:#000000;" onclick="toggleDetails('ntier')"><details><summary><strong>N-tier/Layered Architecture</strong></summary></details></button></td>
+    <td>Organizes software into layers, each responsible for a specific aspect (e.g., presentation, business logic, data access).</td>
+    <td><span>Separation of concerns across layers</span></td>
+  </tr>
+  <tr id="ntier" style="display:none;">
+    <td colspan="3">
+
+![Layered Architecture](/images/layered-architecture-diagram1.png)
+   </td>
+  </tr>
+
+  <tr style="background-color:#d7e3fc;">
+    <td><button style="color:#000000;" onclick="toggleDetails('hexagonal')"><details><summary><strong>Hexagonal/Ports and Adapters Architecture</strong></summary></details></button></td>
+    <td>Focuses on keeping the core logic independent of external factors (e.g., databases, UI, APIs).</td>
+    <td><span>Independence from external systems</span></td>
+  </tr>
+  <tr id="hexagonal" style="display:none;">
+    <td colspan="3">
+      <img src="/images/hexagonal-architecture-diagram.png" alt="Hexagonal Architecture Diagram">
+    </td>
+  </tr>
+
+  <tr style="background-color:#ccdbfd;">
+    <td><button style="color:#000000;" onclick="toggleDetails('microservices')"><details><summary><strong>Microservices Architecture</strong></summary></details></button></td>
+    <td>Structures applications as a collection of loosely coupled, independently deployable services.</td>
+    <td><span>Decoupling and scalability</span></td>
+  </tr>
+  <tr id="microservices" style="display:none;">
+    <td colspan="3">
+      <img src="/images/microservices-architecture-diagram.png" alt="Microservices Architecture Diagram">
+    </td>
+  </tr>
+
+  <tr style="background-color:#c1d3fe;">
+    <td><button style="color:#000000;" onclick="toggleDetails('clean')"><details><summary><strong>Clean Architecture</strong></summary></details></button></td>
+    <td>Emphasizes separating concerns and keeping core logic independent of infrastructure and frameworks.</td>
+    <td><span>Independence of core logic</span></td>
+  </tr>
+  <tr id="clean" style="display:none;">
+    <td colspan="3">
+      <img src="/images/clean-architecture-diagram.png" alt="Clean Architecture Diagram">
+    </td>
+  </tr>
+
+  <tr style="background-color:#b2c4fe;">
+    <td><button style="color:#000000;" onclick="toggleDetails('soa')"><details><summary><strong>Service-Oriented Architecture (SOA)</strong></summary></details></button></td>
+    <td>Breaks down systems into services that communicate over a network.</td>
+    <td><span>Distributed services over a network</span></td>
+  </tr>
+  <tr id="soa" style="display:none;">
+    <td colspan="3">
+      <img src="/images/soa-architecture-diagram.png" alt="SOA Architecture Diagram">
+    </td>
+  </tr>
+
+  <tr style="background-color:#a1b7ff;">
+    <td><button style="color:#000000;" onclick="toggleDetails('modular')"><details><summary><strong>Modular Monolith Architecture</strong></summary></details></button></td>
+    <td>Combines modular components within a single deployable unit, allowing easier refactoring and scaling.</td>
+    <td><span>Modularity within a single unit</span></td>
+  </tr>
+  <tr id="modular" style="display:none;">
+    <td colspan="3">
+      <img src="/images/modular-monolith-architecture-diagram.png" alt="Modular Monolith Architecture Diagram">
+    </td>
+  </tr>
+
+  <tr style="background-color:#97aaff;">
+    <td><button style="color:#000000;" onclick="toggleDetails('eventdriven')"><details><summary><strong>Event-Driven Architecture</strong></summary></details></button></td>
+    <td>Uses events as triggers for communication between decoupled components or services.</td>
+    <td><span>Asynchronous event handling</span></td>
+  </tr>
+  <tr id="eventdriven" style="display:none;">
+    <td colspan="3">
+      <img src="/images/event-driven-architecture-diagram.png" alt="Event-Driven Architecture Diagram">
+    </td>
+  </tr>
+
+  <tr style="background-color:#8d9dff;">
+    <td><button style="color:#000000;" onclick="toggleDetails('mvc')"><details><summary><strong>MVC, MVP, MVVM</strong></summary></details></button></td>
+    <td>Patterns for organizing the presentation layer in software, separating concerns between the model (data), view (UI), and controller/presenter (logic).</td>
+    <td><span>Presentation layer organization</span></td>
+  </tr>
+  <tr id="mvc" style="display:none;">
+    <td colspan="3">
+      <img src="/images/mvc-mvp-mvvm-architecture-diagram.png" alt="MVC, MVP, MVVM Architecture Diagram">
+    </td>
+  </tr>
+</table>
+
+<script>
+function toggleDetails(id) {
+  var element = document.getElementById(id);
+  if (element.style.display === "none") {
+    element.style.display = "table-row";
+  } else {
+    element.style.display = "none";
+  }
+}
+</script>
