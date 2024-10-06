@@ -133,6 +133,52 @@ This structure helps maintain a clear separation of concerns and ensures that th
   <img src="/images/clean-architecture-diagram2.png" alt="Clean Architecture 2" width="300">
 </div>
 
+
+### Project Setup Script
+This script automates the creation of a .NET solution with multiple projects following a clean architecture pattern.
+```bash
+#!/bin/bash
+
+# Check if the required arguments are provided
+if [ $# -ne 2 ]; then
+    echo "Usage: $0 <SolutionName> <ProjectName>"
+    exit 1
+fi
+
+# Assign arguments to variables
+SOLUTION_NAME=$1
+PROJECT_NAME=$2
+
+# Create the solution with the given SolutionName
+dotnet new sln --name "$SOLUTION_NAME"
+
+# Create WebAPI project with the given ProjectName
+dotnet new webapi -o "$PROJECT_NAME.Api"
+
+# Create class libraries for Application, Infrastructure, and Domain layers
+dotnet new classlib -o "$PROJECT_NAME.Application"
+dotnet new classlib -o "$PROJECT_NAME.Infrastructure"
+dotnet new classlib -o "$PROJECT_NAME.Domain"
+
+# Add projects to the solution
+dotnet sln add "$PROJECT_NAME.Api/$PROJECT_NAME.Api.csproj"
+dotnet sln add "$PROJECT_NAME.Application/$PROJECT_NAME.Application.csproj"
+dotnet sln add "$PROJECT_NAME.Infrastructure/$PROJECT_NAME.Infrastructure.csproj"
+dotnet sln add "$PROJECT_NAME.Domain/$PROJECT_NAME.Domain.csproj"
+
+# Add references between projects
+dotnet add "$PROJECT_NAME.Api" reference "$PROJECT_NAME.Application"
+dotnet add "$PROJECT_NAME.Infrastructure" reference "$PROJECT_NAME.Application"
+dotnet add "$PROJECT_NAME.Application" reference "$PROJECT_NAME.Domain"
+
+# Build the solution to verify everything is set up correctly
+dotnet build
+```
+Run the script with the following arguments:
+```bash
+./script.sh <SolutionName> <ProjectName>
+```
+
   </tr>
 
   <tr style="background-color:#b2c4fe;">
