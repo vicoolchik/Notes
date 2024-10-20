@@ -89,13 +89,6 @@ app.Run();
 
 - The middleware wraps the next delegate in the pipeline with a `try-catch` block.
  If an exception occurs during request processing—whether before reaching the controller, during controller execution, or after—it is caught, and a generic error response is sent to the client.
-**It catches exceptions in**:
-  - In controllers or actions.
-  - In services or repositories called by controllers.
-  - In middleware registered after the Error Handling Middleware.
-**Exceptions Not Caught**:
-  - In middleware components that are registered before the Error Handling Middleware will not be caught by it.
-  - After the response has begun being sent to the client, such as during response streaming, are not caught.
 - The middleware sets the response's status code to `500 Internal Server Error` and returns a JSON-formatted error message.
     This provides a unified error response, which is returning consistent error messages to the client.
     **Example Server Response:**
@@ -111,6 +104,15 @@ app.Run();
     "error": "An error occurred while processing your request."
     }
     ```
+
+**It catches exceptions in**:
+  - In controllers or actions.
+  - In services or repositories called by controllers.
+  - In middleware registered after the Error Handling Middleware.
+  
+**Exceptions Not Caught**:
+  - In middleware components that are registered before the Error Handling Middleware will not be caught by it.
+  - After the response has begun being sent to the client, such as during response streaming, are not caught.
 
 ## Approach 2: Exception Filter Attribute
 
@@ -275,13 +277,14 @@ This applies the filter only to the `AuthenticationController`, making it useful
 ### How It Works
 
 - The `ErrorHandlingFilterAttribute` inherits from `ExceptionFilterAttribute` and overrides the `OnException` method. When an unhandled exception occurs within a controller action, the filter intercepts it and provides a standardized error response.
+-  The flag `context.ExceptionHandled = true` ensures that the exception is marked as handled, preventing it from propagating further in the request pipeline.
+
 **It catches exceptions in**:
   - Controller actions.
   - Services or repositories invoked by controllers, as long as the exception is propagated back to the controller action.
+  
 **Exceptions Not Caught**:
   - Exceptions that occur **outside of MVC controllers** (e.g., in middleware or during model binding) are not caught.
-
-- The flag `context.ExceptionHandled = true` ensures that the exception is marked as handled, preventing it from propagating further in the request pipeline.
 
 This approach allows centralized error handling for controller actions, ensuring clean, consistent error responses without cluttering the controllers with exception-handling logic.
 
@@ -449,6 +452,7 @@ Transfer-Encoding: chunked
   - In **services** or **repositories** called by controllers, provided they propagate up to the controller.
   - In **middleware registered after** the `UseExceptionHandler` middleware.
   - Any other exceptions in the pipeline, as long as they happen **after the `UseExceptionHandler` middleware is registered**.
+  
 **Exceptions Not Caught**:
   - **Before the `UseExceptionHandler` middleware** is registered in the pipeline.
   - **After the response has started being sent** to the client (e.g., during response streaming).
