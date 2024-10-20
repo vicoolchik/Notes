@@ -7,38 +7,6 @@ tags = ['Clean Architecture']
 
 # Global Error Handling in ASP.NET Core
 
-## Contents
-
-- [Global Error Handling in ASP.NET Core](#global-error-handling-in-aspnet-core)
-  - [Contents](#contents)
-  - [Introduction](#introduction)
-  - [Approach 1: Error Handling Middleware](#approach-1-error-handling-middleware)
-    - [Implementation](#implementation)
-      - [Creating the Middleware](#creating-the-middleware)
-      - [Registering the Middleware](#registering-the-middleware)
-    - [How It Works](#how-it-works)
-  - [Approach 2: Exception Filter Attribute](#approach-2-exception-filter-attribute)
-    - [Implementation](#implementation-1)
-      - [Returning a Simple JSON Error Response](#returning-a-simple-json-error-response)
-      - [Using ProblemDetails for Detailed Error Information](#using-problemdetails-for-detailed-error-information)
-      - [Applying the Filter Globally](#applying-the-filter-globally)
-      - [Applying the Filter to a Specific Controller](#applying-the-filter-to-a-specific-controller)
-    - [How It Works](#how-it-works-1)
-  - [Approach 3: UseExceptionHandler Middleware and Error Endpoint](#approach-3-useexceptionhandler-middleware-and-error-endpoint)
-    - [Implementation](#implementation-2)
-      - [Configuring the Middleware](#configuring-the-middleware)
-      - [Creating the Error Controller](#creating-the-error-controller)
-      - [UseExceptionHandler Middleware without a Custom Error Endpoint](#useexceptionhandler-middleware-without-a-custom-error-endpoint)
-    - [How It Works](#how-it-works-2)
-  - [Using ProblemDetails for Error Responses](#using-problemdetails-for-error-responses)
-    - [ProblemDetails Response Format](#problemdetails-response-format)
-    - [Extending ProblemDetails for Global Error Handling](#extending-problemdetails-for-global-error-handling)
-      - [Customizing with `AddProblemDetails()` in .NET 7+](#customizing-with-addproblemdetails-in-net-7)
-      - [Customizing with `ProblemDetailsFactory` in Earlier .NET Versions](#customizing-with-problemdetailsfactory-in-earlier-net-versions)
-    - [Wrap-up](#wrap-up)
-  - [Conclusion](#conclusion)
-    - [Remark](#remark)
-
 ## Introduction
 
 Error handling is essential in web application development to ensure that unhandled exceptions are appropriately managed and that clients receive meaningful error responses. In ASP.NET Core, global error handling can be achieved using several techniques, each with its advantages and suitable use cases. This article will guide you through four primary approaches:
@@ -121,13 +89,13 @@ app.Run();
 
 - The middleware wraps the next delegate in the pipeline with a `try-catch` block.
  If an exception occurs during request processing—whether before reaching the controller, during controller execution, or after—it is caught, and a generic error response is sent to the client.
-    > **It catches exceptions in**:
-      - In controllers or actions.
-      - In services or repositories called by controllers.
-      - In middleware registered after the Error Handling Middleware.
-    **Exceptions Not Caught**:
-      - In middleware components that are registered before the Error Handling Middleware will not be caught by it.
-      - After the response has begun being sent to the client, such as during response streaming, are not caught.
+**It catches exceptions in**:
+  - In controllers or actions.
+  - In services or repositories called by controllers.
+  - In middleware registered after the Error Handling Middleware.
+**Exceptions Not Caught**:
+  - In middleware components that are registered before the Error Handling Middleware will not be caught by it.
+  - After the response has begun being sent to the client, such as during response streaming, are not caught.
 - The middleware sets the response's status code to `500 Internal Server Error` and returns a JSON-formatted error message.
     This provides a unified error response, which is returning consistent error messages to the client.
     **Example Server Response:**
@@ -307,11 +275,11 @@ This applies the filter only to the `AuthenticationController`, making it useful
 ### How It Works
 
 - The `ErrorHandlingFilterAttribute` inherits from `ExceptionFilterAttribute` and overrides the `OnException` method. When an unhandled exception occurs within a controller action, the filter intercepts it and provides a standardized error response.
-  > **It catches exceptions in**:
-      - Controller actions.
-      - Services or repositories invoked by controllers, as long as the exception is propagated back to the controller action.
-    **Exceptions Not Caught**:
-      - Exceptions that occur **outside of MVC controllers** (e.g., in middleware or during model binding) are not caught.
+**It catches exceptions in**:
+  - Controller actions.
+  - Services or repositories invoked by controllers, as long as the exception is propagated back to the controller action.
+**Exceptions Not Caught**:
+  - Exceptions that occur **outside of MVC controllers** (e.g., in middleware or during model binding) are not caught.
 
 - The flag `context.ExceptionHandled = true` ensures that the exception is marked as handled, preventing it from propagating further in the request pipeline.
 
@@ -475,15 +443,15 @@ Transfer-Encoding: chunked
 
 - The `UseExceptionHandler` middleware catches unhandled exceptions that occur **after the middleware is registered** in the pipeline and redirects the request to a specified endpoint (e.g., `/error`).
 - The `ErrorsController` processes the error and returns a standardized response using the `Problem()` method, which constructs a `ProblemDetails` object compliant with RFC 7807.
-
-  > **Exceptions Caught**:
-      - **In controllers** during the execution of actions.
-      - In **services** or **repositories** called by controllers, provided they propagate up to the controller.
-      - In **middleware registered after** the `UseExceptionHandler` middleware.
-      - Any other exceptions in the pipeline, as long as they happen **after the `UseExceptionHandler` middleware is registered**.
-    **Exceptions Not Caught**:
-      - **Before the `UseExceptionHandler` middleware** is registered in the pipeline.
-      - **After the response has started being sent** to the client (e.g., during response streaming).
+  
+**Exceptions Caught**:
+  - **In controllers** during the execution of actions.
+  - In **services** or **repositories** called by controllers, provided they propagate up to the controller.
+  - In **middleware registered after** the `UseExceptionHandler` middleware.
+  - Any other exceptions in the pipeline, as long as they happen **after the `UseExceptionHandler` middleware is registered**.
+**Exceptions Not Caught**:
+  - **Before the `UseExceptionHandler` middleware** is registered in the pipeline.
+  - **After the response has started being sent** to the client (e.g., during response streaming).
 
 ## Using ProblemDetails for Error Responses
 
