@@ -1,0 +1,427 @@
+<!DOCTYPE html>
+<html lang="en" dir="auto">
+
+<head><script src="/livereload.js?mindelay=10&amp;v=2&amp;port=1313&amp;path=livereload" data-no-instant defer></script><meta charset="utf-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+<meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+<meta name="robots" content="noindex, nofollow">
+<title>Object Mapping | victoria notes</title>
+<meta name="keywords" content="Clean Architecture">
+<meta name="description" content="Object Mapping with Mapster
+Object mapping is the process of transferring properties from one object to another, commonly used in modular or layered applications. This approach is particularly valuable in systems with clean architecture or domain-driven design, allowing seamless data transfer between modules or mapping request objects to data models, commands, or database entities.
+We will explore object mapping using the Mapster library in C#, a fast and flexible alternative to other mapping libraries like AutoMapper.">
+<meta name="author" content="">
+<link rel="canonical" href="http://localhost:1313/posts/clean-architecture/object-mapping-mapster/">
+<link crossorigin="anonymous" href="/assets/css/stylesheet.b609c58d5c11bb90b1a54e04005d74ad1ddf22165eb79f5533967e57df9c3b50.css" integrity="sha256-tgnFjVwRu5CxpU4EAF10rR3fIhZet59VM5Z&#43;V9&#43;cO1A=" rel="preload stylesheet" as="style">
+<link rel="icon" href="http://localhost:1313/favicon.ico">
+<link rel="icon" type="image/png" sizes="16x16" href="http://localhost:1313/favicon-16x16.png">
+<link rel="icon" type="image/png" sizes="32x32" href="http://localhost:1313/favicon-32x32.png">
+<link rel="apple-touch-icon" href="http://localhost:1313/apple-touch-icon.png">
+<link rel="mask-icon" href="http://localhost:1313/safari-pinned-tab.svg">
+<meta name="theme-color" content="#2e2e33">
+<meta name="msapplication-TileColor" content="#2e2e33">
+<link rel="alternate" hreflang="en" href="http://localhost:1313/posts/clean-architecture/object-mapping-mapster/">
+<noscript>
+    <style>
+        #theme-toggle,
+        .top-link {
+            display: none;
+        }
+
+    </style>
+    <style>
+        @media (prefers-color-scheme: dark) {
+            :root {
+                --theme: rgb(29, 30, 32);
+                --entry: rgb(46, 46, 51);
+                --primary: rgb(218, 218, 219);
+                --secondary: rgb(155, 156, 157);
+                --tertiary: rgb(65, 66, 68);
+                --content: rgb(196, 196, 197);
+                --code-block-bg: rgb(46, 46, 51);
+                --code-bg: rgb(55, 56, 62);
+                --border: rgb(51, 51, 51);
+            }
+
+            .list {
+                background: var(--theme);
+            }
+
+            .list:not(.dark)::-webkit-scrollbar-track {
+                background: 0 0;
+            }
+
+            .list:not(.dark)::-webkit-scrollbar-thumb {
+                border-color: var(--theme);
+            }
+        }
+
+    </style>
+</noscript>
+    
+  
+
+</head>
+
+<body class="" id="top">
+<script>
+    if (localStorage.getItem("pref-theme") === "dark") {
+        document.body.classList.add('dark');
+    } else if (localStorage.getItem("pref-theme") === "light") {
+        document.body.classList.remove('dark')
+    } else if (window.matchMedia('(prefers-color-scheme: dark)').matches) {
+        document.body.classList.add('dark');
+    }
+
+</script>
+
+<header class="header">
+    <nav class="nav">
+        <div class="logo">
+            <a href="http://localhost:1313/" accesskey="h" title="victoria notes (Alt + H)">victoria notes</a>
+            <div class="logo-switches">
+                <button id="theme-toggle" accesskey="t" title="(Alt + T)">
+                    <svg id="moon" xmlns="http://www.w3.org/2000/svg" width="24" height="18" viewBox="0 0 24 24"
+                        fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                        stroke-linejoin="round">
+                        <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path>
+                    </svg>
+                    <svg id="sun" xmlns="http://www.w3.org/2000/svg" width="24" height="18" viewBox="0 0 24 24"
+                        fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                        stroke-linejoin="round">
+                        <circle cx="12" cy="12" r="5"></circle>
+                        <line x1="12" y1="1" x2="12" y2="3"></line>
+                        <line x1="12" y1="21" x2="12" y2="23"></line>
+                        <line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line>
+                        <line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line>
+                        <line x1="1" y1="12" x2="3" y2="12"></line>
+                        <line x1="21" y1="12" x2="23" y2="12"></line>
+                        <line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line>
+                        <line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line>
+                    </svg>
+                </button>
+            </div>
+        </div>
+        <ul id="menu">
+            <li>
+                <a href="http://localhost:1313/about_me/" title="About me">
+                    <span>About me</span>
+                </a>
+            </li>
+            <li>
+                <a href="http://localhost:1313/archives/" title="Archive">
+                    <span>Archive</span>
+                </a>
+            </li>
+            <li>
+                <a href="http://localhost:1313/" title="Home">
+                    <span>Home</span>
+                </a>
+            </li>
+        </ul>
+    </nav>
+</header>
+<main class="main">
+
+<article class="post-single">
+  <header class="post-header">
+    <div class="breadcrumbs"><a href="http://localhost:1313/">Home</a>&nbsp;»&nbsp;<a href="http://localhost:1313/posts/">Posts</a></div>
+    <h1 class="post-title entry-hint-parent">
+      Object Mapping
+    </h1>
+    <div class="post-meta"><span title='2024-10-28 19:58:16 +0300 +0300'>October 28, 2024</span>&nbsp;·&nbsp;4 min
+
+</div>
+  </header> <div class="toc">
+    <details >
+        <summary accesskey="c" title="(Alt + C)">
+            <span class="details">Table of Contents</span>
+        </summary>
+
+        <div class="inner"><ul>
+                <li>
+                    <a href="#object-mapping-with-mapster" aria-label="Object Mapping with Mapster">Object Mapping with Mapster</a><ul>
+                        
+                <li>
+                    <a href="#installation" aria-label="Installation">Installation</a></li>
+                <li>
+                    <a href="#basic-mapping-with-adapt" aria-label="Basic Mapping with Adapt">Basic Mapping with Adapt</a><ul>
+                        
+                <li>
+                    <a href="#models" aria-label="Models">Models</a></li></ul>
+                </li>
+                <li>
+                    <a href="#configuring-custom-mappings-with-typeadapterconfig" aria-label="Configuring Custom Mappings with TypeAdapterConfig">Configuring Custom Mappings with TypeAdapterConfig</a><ul>
+                        
+                <li>
+                    <a href="#updated-userresponse-model" aria-label="Updated UserResponse Model">Updated UserResponse Model</a></li></ul>
+                </li>
+                <li>
+                    <a href="#ignoring-unmapped-properties" aria-label="Ignoring Unmapped Properties">Ignoring Unmapped Properties</a></li>
+                <li>
+                    <a href="#global-configuration-with-typeadapterconfigglobalsettings" aria-label="Global Configuration with TypeAdapterConfig.GlobalSettings">Global Configuration with TypeAdapterConfig.GlobalSettings</a></li>
+                <li>
+                    <a href="#difference-between-newconfig-and-fortype" aria-label="Difference Between NewConfig and ForType">Difference Between NewConfig and ForType</a></li>
+                <li>
+                    <a href="#combining-multiple-mapping-rules" aria-label="Combining Multiple Mapping Rules">Combining Multiple Mapping Rules</a></li>
+                <li>
+                    <a href="#conditional-mapping" aria-label="Conditional Mapping">Conditional Mapping</a></li>
+                <li>
+                    <a href="#mapping-multiple-objects-to-one" aria-label="Mapping Multiple Objects to One">Mapping Multiple Objects to One</a><ul>
+                        
+                <li>
+                    <a href="#updated-userresponse-model-with-traceid" aria-label="Updated UserResponse Model with TraceId">Updated UserResponse Model with TraceId</a></li></ul>
+                </li>
+                <li>
+                    <a href="#using-aftermapping-for-post-mapping-actions" aria-label="Using AfterMapping for Post-Mapping Actions">Using AfterMapping for Post-Mapping Actions</a></li>
+                <li>
+                    <a href="#using-ivalidatable-interface-for-conditional-validation" aria-label="Using IValidatable Interface for Conditional Validation">Using IValidatable Interface for Conditional Validation</a><ul>
+                        
+                <li>
+                    <a href="#userresponse-implements-ivalidatable" aria-label="UserResponse Implements IValidatable">UserResponse Implements IValidatable</a></li></ul>
+                </li>
+                <li>
+                    <a href="#using-the-mapper-instance-for-mapping" aria-label="Using the Mapper Instance for Mapping">Using the Mapper Instance for Mapping</a></li>
+                <li>
+                    <a href="#conclusion" aria-label="Conclusion">Conclusion</a>
+                </li>
+            </ul>
+            </li>
+            </ul>
+        </div>
+    </details>
+</div>
+
+  <div class="post-content"><h1 id="object-mapping-with-mapster">Object Mapping with Mapster<a hidden class="anchor" aria-hidden="true" href="#object-mapping-with-mapster">#</a></h1>
+<p>Object mapping is the process of transferring properties from one object to another, commonly used in modular or layered applications. This approach is particularly valuable in systems with clean architecture or domain-driven design, allowing seamless data transfer between modules or mapping request objects to data models, commands, or database entities.</p>
+<p>We will explore object mapping using the Mapster library in C#, a fast and flexible alternative to other mapping libraries like AutoMapper.</p>
+<h2 id="installation">Installation<a hidden class="anchor" aria-hidden="true" href="#installation">#</a></h2>
+<p>To add Mapster to your project, run:</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-bash" data-lang="bash"><span style="display:flex;"><span>dotnet add package Mapster
+</span></span></code></pre></div><h2 id="basic-mapping-with-adapt">Basic Mapping with <code>Adapt</code><a hidden class="anchor" aria-hidden="true" href="#basic-mapping-with-adapt">#</a></h2>
+<p>With Mapster, we can replace manual mapping code with a single <code>Adapt</code> method, which automatically maps properties by matching names between source and destination objects.</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-csharp" data-lang="csharp"><span style="display:flex;"><span><span style="color:#66d9ef">using</span> Mapster;
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">var</span> user = UserGenerator.GenerateRandom();
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">var</span> userResponse = user.Adapt&lt;UserResponse&gt;();
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>Console.WriteLine(user);
+</span></span><span style="display:flex;"><span>Console.WriteLine(userResponse);
+</span></span></code></pre></div><h3 id="models">Models<a hidden class="anchor" aria-hidden="true" href="#models">#</a></h3>
+<p>Define <code>User</code> and <code>UserResponse</code> records to be mapped:</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-csharp" data-lang="csharp"><span style="display:flex;"><span><span style="color:#66d9ef">namespace</span> MapsterPlayground.Entities
+</span></span><span style="display:flex;"><span>{
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">public</span> <span style="color:#66d9ef">record</span> <span style="color:#a6e22e">User</span>(
+</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">int</span> Id,
+</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">string</span> FirstName,
+</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">string</span> LastName
+</span></span><span style="display:flex;"><span>    );
+</span></span><span style="display:flex;"><span>}
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">namespace</span> MapsterPlayground.Contracts
+</span></span><span style="display:flex;"><span>{
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">public</span> <span style="color:#66d9ef">record</span> <span style="color:#a6e22e">UserResponse</span>(
+</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">int</span> Id,
+</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">string</span> FirstName,
+</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">string</span> LastName
+</span></span><span style="display:flex;"><span>    );
+</span></span><span style="display:flex;"><span>}
+</span></span></code></pre></div><h2 id="configuring-custom-mappings-with-typeadapterconfig">Configuring Custom Mappings with <code>TypeAdapterConfig</code><a hidden class="anchor" aria-hidden="true" href="#configuring-custom-mappings-with-typeadapterconfig">#</a></h2>
+<p>In cases where properties don’t match by name, we can create custom mapping configurations. For example, if <code>UserResponse</code> has a <code>FullName</code> property that combines <code>FirstName</code> and <code>LastName</code> from <code>User</code>, we can specify this in a custom configuration.</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-csharp" data-lang="csharp"><span style="display:flex;"><span><span style="color:#66d9ef">var</span> config = <span style="color:#66d9ef">new</span> TypeAdapterConfig();
+</span></span><span style="display:flex;"><span>config.NewConfig&lt;User, UserResponse&gt;()
+</span></span><span style="display:flex;"><span>    .Map(dest =&gt; dest.FullName, src =&gt; <span style="color:#e6db74">$&#34;{src.FirstName} {src.LastName}&#34;</span>);
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">var</span> userResponse = user.Adapt&lt;UserResponse&gt;(config);
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>Console.WriteLine(user);
+</span></span><span style="display:flex;"><span>Console.WriteLine(userResponse);
+</span></span></code></pre></div><h3 id="updated-userresponse-model">Updated <code>UserResponse</code> Model<a hidden class="anchor" aria-hidden="true" href="#updated-userresponse-model">#</a></h3>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-csharp" data-lang="csharp"><span style="display:flex;"><span><span style="color:#66d9ef">namespace</span> MapsterPlayground.Contracts
+</span></span><span style="display:flex;"><span>{
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">public</span> <span style="color:#66d9ef">record</span> <span style="color:#a6e22e">UserResponse</span>(
+</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">int</span> Id,
+</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">string</span> FullName
+</span></span><span style="display:flex;"><span>    );
+</span></span><span style="display:flex;"><span>}
+</span></span></code></pre></div><h2 id="ignoring-unmapped-properties">Ignoring Unmapped Properties<a hidden class="anchor" aria-hidden="true" href="#ignoring-unmapped-properties">#</a></h2>
+<p>Use <code>IgnoreNonMapped</code> to ignore properties in the destination that do not have corresponding mapped properties in the source.</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-csharp" data-lang="csharp"><span style="display:flex;"><span>config.NewConfig&lt;User, UserResponse&gt;()
+</span></span><span style="display:flex;"><span>    .Map(dest =&gt; dest.FullName, src =&gt; <span style="color:#e6db74">$&#34;{src.FirstName} {src.LastName}&#34;</span>)
+</span></span><span style="display:flex;"><span>    .IgnoreNonMapped(<span style="color:#66d9ef">true</span>);
+</span></span></code></pre></div><h2 id="global-configuration-with-typeadapterconfigglobalsettings">Global Configuration with <code>TypeAdapterConfig.GlobalSettings</code><a hidden class="anchor" aria-hidden="true" href="#global-configuration-with-typeadapterconfigglobalsettings">#</a></h2>
+<p>Mapster supports global configuration settings, allowing you to avoid passing custom configurations for each mapping instance.</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-csharp" data-lang="csharp"><span style="display:flex;"><span><span style="color:#66d9ef">var</span> config = TypeAdapterConfig.GlobalSettings;
+</span></span><span style="display:flex;"><span>config.NewConfig&lt;User, UserResponse&gt;()
+</span></span><span style="display:flex;"><span>    .Map(dest =&gt; dest.FullName, src =&gt; <span style="color:#e6db74">$&#34;{src.FirstName} {src.LastName}&#34;</span>);
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">var</span> userResponse = user.Adapt&lt;UserResponse&gt;();
+</span></span></code></pre></div><h2 id="difference-between-newconfig-and-fortype">Difference Between <code>NewConfig</code> and <code>ForType</code><a hidden class="anchor" aria-hidden="true" href="#difference-between-newconfig-and-fortype">#</a></h2>
+<p><code>NewConfig</code> creates a fresh configuration for a mapping, overriding any previous settings for that pair (e.g., <code>User</code> to <code>UserResponse</code>). This can replace existing mappings, potentially losing previously defined rules.</p>
+<p>In contrast, <code>ForType</code> appends new rules to an existing configuration, preserving prior mappings. Use <code>ForType</code> to add additional mappings without discarding previous ones.</p>
+<h2 id="combining-multiple-mapping-rules">Combining Multiple Mapping Rules<a hidden class="anchor" aria-hidden="true" href="#combining-multiple-mapping-rules">#</a></h2>
+<p>Mapster allows defining multiple rules. For example, we can add a rule to adjust the <code>Id</code> property.</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-csharp" data-lang="csharp"><span style="display:flex;"><span>TypeAdapterConfig&lt;User, UserResponse&gt;.NewConfig()
+</span></span><span style="display:flex;"><span>    .Map(dest =&gt; dest.FullName, src =&gt; <span style="color:#e6db74">$&#34;{src.FirstName} {src.LastName}&#34;</span>);
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>config.ForType&lt;User, UserResponse&gt;()
+</span></span><span style="display:flex;"><span>    .Map(dest =&gt; dest.Id, src =&gt; src.Id + <span style="color:#ae81ff">1</span>);
+</span></span></code></pre></div><h2 id="conditional-mapping">Conditional Mapping<a hidden class="anchor" aria-hidden="true" href="#conditional-mapping">#</a></h2>
+<p>Mapster supports conditional mapping. For instance, only map <code>FullName</code> if <code>FirstName</code> starts with the letter &ldquo;A&rdquo;:</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-csharp" data-lang="csharp"><span style="display:flex;"><span>TypeAdapterConfig&lt;User, UserResponse&gt;.NewConfig()
+</span></span><span style="display:flex;"><span>    .Map(
+</span></span><span style="display:flex;"><span>        dest =&gt; dest.FullName,
+</span></span><span style="display:flex;"><span>        src =&gt; <span style="color:#e6db74">$&#34;{src.FirstName} {src.LastName}&#34;</span>,
+</span></span><span style="display:flex;"><span>        src =&gt; src.FirstName.StartsWith(<span style="color:#e6db74">&#34;A&#34;</span>, StringComparison.OrdinalIgnoreCase)
+</span></span><span style="display:flex;"><span>    );
+</span></span></code></pre></div><h2 id="mapping-multiple-objects-to-one">Mapping Multiple Objects to One<a hidden class="anchor" aria-hidden="true" href="#mapping-multiple-objects-to-one">#</a></h2>
+<p>You can map multiple objects to a single destination object, such as combining a <code>User</code> object and a <code>TraceId</code> GUID into <code>UserResponse</code>.</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-csharp" data-lang="csharp"><span style="display:flex;"><span><span style="color:#66d9ef">var</span> traceId = Guid.NewGuid();
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">var</span> userResponse = (user, traceId).Adapt&lt;UserResponse&gt;();
+</span></span></code></pre></div><p>Configuration:</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-csharp" data-lang="csharp"><span style="display:flex;"><span>TypeAdapterConfig&lt;(User User, Guid TraceId), UserResponse&gt;.NewConfig()
+</span></span><span style="display:flex;"><span>    .Map(dest =&gt; dest.TraceId, src =&gt; src.TraceId)
+</span></span><span style="display:flex;"><span>    .Map(dest =&gt; dest, src =&gt; src.User);
+</span></span></code></pre></div><h3 id="updated-userresponse-model-with-traceid">Updated <code>UserResponse</code> Model with <code>TraceId</code><a hidden class="anchor" aria-hidden="true" href="#updated-userresponse-model-with-traceid">#</a></h3>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-csharp" data-lang="csharp"><span style="display:flex;"><span><span style="color:#66d9ef">namespace</span> MapsterPlayground.Contracts
+</span></span><span style="display:flex;"><span>{
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">public</span> <span style="color:#66d9ef">record</span> <span style="color:#a6e22e">UserResponse</span>(
+</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">int</span> Id,
+</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">string</span> FirstName,
+</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">string</span> LastName,
+</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">string</span> TraceId
+</span></span><span style="display:flex;"><span>    );
+</span></span><span style="display:flex;"><span>}
+</span></span></code></pre></div><h2 id="using-aftermapping-for-post-mapping-actions">Using <code>AfterMapping</code> for Post-Mapping Actions<a hidden class="anchor" aria-hidden="true" href="#using-aftermapping-for-post-mapping-actions">#</a></h2>
+<p><code>AfterMapping</code> can be used for actions after mapping. Here, we log the mapped object to the console.</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-csharp" data-lang="csharp"><span style="display:flex;"><span>TypeAdapterConfig&lt;(User User, Guid TraceId), UserResponse&gt;.NewConfig()
+</span></span><span style="display:flex;"><span>    .Map(dest =&gt; dest.TraceId, src =&gt; src.TraceId)
+</span></span><span style="display:flex;"><span>    .Map(dest =&gt; dest, src =&gt; src.User)
+</span></span><span style="display:flex;"><span>    .AfterMapping(dest =&gt; Console.WriteLine(dest));
+</span></span></code></pre></div><h2 id="using-ivalidatable-interface-for-conditional-validation">Using <code>IValidatable</code> Interface for Conditional Validation<a hidden class="anchor" aria-hidden="true" href="#using-ivalidatable-interface-for-conditional-validation">#</a></h2>
+<p>Mapster can perform actions like validation on destination objects implementing an interface, such as <code>IValidatable</code>.</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-csharp" data-lang="csharp"><span style="display:flex;"><span><span style="color:#66d9ef">public</span> <span style="color:#66d9ef">interface</span> <span style="color:#a6e22e">IValidatable</span>
+</span></span><span style="display:flex;"><span>{
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">void</span> Validate()
+</span></span><span style="display:flex;"><span>    {
+</span></span><span style="display:flex;"><span>        Console.WriteLine(<span style="color:#e6db74">&#34;Validating...&#34;</span>);
+</span></span><span style="display:flex;"><span>    }
+</span></span><span style="display:flex;"><span>}
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>config.ForDestinationType&lt;IValidatable&gt;()
+</span></span><span style="display:flex;"><span>    .AfterMapping(dest =&gt; dest.Validate());
+</span></span></code></pre></div><h3 id="userresponse-implements-ivalidatable"><code>UserResponse</code> Implements <code>IValidatable</code><a hidden class="anchor" aria-hidden="true" href="#userresponse-implements-ivalidatable">#</a></h3>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-csharp" data-lang="csharp"><span style="display:flex;"><span><span style="color:#66d9ef">namespace</span> MapsterPlayground.Contracts
+</span></span><span style="display:flex;"><span>{
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">public</span> <span style="color:#66d9ef">record</span> <span style="color:#a6e22e">UserResponse</span>(
+</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">int</span> Id,
+</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">string</span> FirstName,
+</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">string</span> LastName,
+</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">string</span> TraceId
+</span></span><span style="display:flex;"><span>    ) : IValidatable;
+</span></span><span style="display:flex;"><span>}
+</span></span></code></pre></div><h2 id="using-the-mapper-instance-for-mapping">Using the <code>Mapper</code> Instance for Mapping<a hidden class="anchor" aria-hidden="true" href="#using-the-mapper-instance-for-mapping">#</a></h2>
+<p>Mapster also supports using the <code>Mapper</code> instance to handle mapping operations, which will utilize global configurations.</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-csharp" data-lang="csharp"><span style="display:flex;"><span>IMapper mapper = <span style="color:#66d9ef">new</span> Mapper();
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">var</span> userResponse = mapper.Map&lt;UserResponse&gt;(user);
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>Console.WriteLine(user);
+</span></span><span style="display:flex;"><span>Console.WriteLine(userResponse);
+</span></span></code></pre></div><h2 id="conclusion">Conclusion<a hidden class="anchor" aria-hidden="true" href="#conclusion">#</a></h2>
+<p>Mapster provides a flexible and fast approach to object mapping in C#. Its support for custom configurations, global settings, and advanced features like conditional mapping and post-mapping actions makes it a powerful tool for projects with clean architecture or domain-driven design.</p>
+
+
+  </div>
+
+  <footer class="post-footer">
+    <ul class="post-tags">
+      <li><a href="http://localhost:1313/tags/clean-architecture/">Clean Architecture</a></li>
+    </ul>
+<nav class="paginav">
+  <a class="next" href="http://localhost:1313/posts/clean-architecture/global-error-handling/">
+    <span class="title">Next »</span>
+    <br>
+    <span>Global Error Handling</span>
+  </a>
+</nav>
+
+  </footer>
+</article>
+    </main>
+
+    
+    
+
+    
+<footer class="footer">
+        <span>&copy; 2024 <a href="http://localhost:1313/">victoria notes</a></span> · 
+
+    <span>
+        Powered by
+        <a href="https://gohugo.io/" rel="noopener noreferrer" target="_blank">Hugo</a> &
+        <a href="https://github.com/adityatelange/hugo-PaperMod/" rel="noopener" target="_blank">PaperMod</a>
+    </span>
+</footer>
+<a href="#top" aria-label="go to top" title="Go to Top (Alt + G)" class="top-link" id="top-link" accesskey="g">
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 12 6" fill="currentColor">
+        <path d="M12 6H0l6-6z" />
+    </svg>
+</a>
+
+<script>
+    let menu = document.getElementById('menu')
+    if (menu) {
+        menu.scrollLeft = localStorage.getItem("menu-scroll-position");
+        menu.onscroll = function () {
+            localStorage.setItem("menu-scroll-position", menu.scrollLeft);
+        }
+    }
+
+    document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+        anchor.addEventListener("click", function (e) {
+            e.preventDefault();
+            var id = this.getAttribute("href").substr(1);
+            if (!window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+                document.querySelector(`[id='${decodeURIComponent(id)}']`).scrollIntoView({
+                    behavior: "smooth"
+                });
+            } else {
+                document.querySelector(`[id='${decodeURIComponent(id)}']`).scrollIntoView();
+            }
+            if (id === "top") {
+                history.replaceState(null, null, " ");
+            } else {
+                history.pushState(null, null, `#${id}`);
+            }
+        });
+    });
+
+</script>
+<script>
+    var mybutton = document.getElementById("top-link");
+    window.onscroll = function () {
+        if (document.body.scrollTop > 800 || document.documentElement.scrollTop > 800) {
+            mybutton.style.visibility = "visible";
+            mybutton.style.opacity = "1";
+        } else {
+            mybutton.style.visibility = "hidden";
+            mybutton.style.opacity = "0";
+        }
+    };
+
+</script>
+<script>
+    document.getElementById("theme-toggle").addEventListener("click", () => {
+        if (document.body.className.includes("dark")) {
+            document.body.classList.remove('dark');
+            localStorage.setItem("pref-theme", 'light');
+        } else {
+            document.body.classList.add('dark');
+            localStorage.setItem("pref-theme", 'dark');
+        }
+    })
+
+</script>
+</body>
+
+</html>

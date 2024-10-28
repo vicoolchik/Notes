@@ -1,0 +1,940 @@
+<!DOCTYPE html>
+<html lang="en" dir="auto">
+
+<head><script src="/livereload.js?mindelay=10&amp;v=2&amp;port=1313&amp;path=livereload" data-no-instant defer></script><meta charset="utf-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+<meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+<meta name="robots" content="noindex, nofollow">
+<title>Global Error Handling | victoria notes</title>
+<meta name="keywords" content="Clean Architecture">
+<meta name="description" content="Global Error Handling in ASP.NET Core
+Introduction
+Error handling is essential in web application development to ensure that unhandled exceptions are appropriately managed and that clients receive meaningful error responses. In ASP.NET Core, global error handling can be achieved using several techniques, each with its advantages and suitable use cases. This article will guide you through primary approaches:
+
+Error Handling Middleware
+Exception Filter Attribute
+UseExceptionHandler Middleware with Custom Error Endpoint
+
+We will also delve into using the ProblemDetails response format to provide standardized error information to clients, as recommended by RFC 7807.">
+<meta name="author" content="">
+<link rel="canonical" href="http://localhost:1313/posts/clean-architecture/global-error-handling/">
+<link crossorigin="anonymous" href="/assets/css/stylesheet.b609c58d5c11bb90b1a54e04005d74ad1ddf22165eb79f5533967e57df9c3b50.css" integrity="sha256-tgnFjVwRu5CxpU4EAF10rR3fIhZet59VM5Z&#43;V9&#43;cO1A=" rel="preload stylesheet" as="style">
+<link rel="icon" href="http://localhost:1313/favicon.ico">
+<link rel="icon" type="image/png" sizes="16x16" href="http://localhost:1313/favicon-16x16.png">
+<link rel="icon" type="image/png" sizes="32x32" href="http://localhost:1313/favicon-32x32.png">
+<link rel="apple-touch-icon" href="http://localhost:1313/apple-touch-icon.png">
+<link rel="mask-icon" href="http://localhost:1313/safari-pinned-tab.svg">
+<meta name="theme-color" content="#2e2e33">
+<meta name="msapplication-TileColor" content="#2e2e33">
+<link rel="alternate" hreflang="en" href="http://localhost:1313/posts/clean-architecture/global-error-handling/">
+<noscript>
+    <style>
+        #theme-toggle,
+        .top-link {
+            display: none;
+        }
+
+    </style>
+    <style>
+        @media (prefers-color-scheme: dark) {
+            :root {
+                --theme: rgb(29, 30, 32);
+                --entry: rgb(46, 46, 51);
+                --primary: rgb(218, 218, 219);
+                --secondary: rgb(155, 156, 157);
+                --tertiary: rgb(65, 66, 68);
+                --content: rgb(196, 196, 197);
+                --code-block-bg: rgb(46, 46, 51);
+                --code-bg: rgb(55, 56, 62);
+                --border: rgb(51, 51, 51);
+            }
+
+            .list {
+                background: var(--theme);
+            }
+
+            .list:not(.dark)::-webkit-scrollbar-track {
+                background: 0 0;
+            }
+
+            .list:not(.dark)::-webkit-scrollbar-thumb {
+                border-color: var(--theme);
+            }
+        }
+
+    </style>
+</noscript>
+    
+  
+
+</head>
+
+<body class="" id="top">
+<script>
+    if (localStorage.getItem("pref-theme") === "dark") {
+        document.body.classList.add('dark');
+    } else if (localStorage.getItem("pref-theme") === "light") {
+        document.body.classList.remove('dark')
+    } else if (window.matchMedia('(prefers-color-scheme: dark)').matches) {
+        document.body.classList.add('dark');
+    }
+
+</script>
+
+<header class="header">
+    <nav class="nav">
+        <div class="logo">
+            <a href="http://localhost:1313/" accesskey="h" title="victoria notes (Alt + H)">victoria notes</a>
+            <div class="logo-switches">
+                <button id="theme-toggle" accesskey="t" title="(Alt + T)">
+                    <svg id="moon" xmlns="http://www.w3.org/2000/svg" width="24" height="18" viewBox="0 0 24 24"
+                        fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                        stroke-linejoin="round">
+                        <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path>
+                    </svg>
+                    <svg id="sun" xmlns="http://www.w3.org/2000/svg" width="24" height="18" viewBox="0 0 24 24"
+                        fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                        stroke-linejoin="round">
+                        <circle cx="12" cy="12" r="5"></circle>
+                        <line x1="12" y1="1" x2="12" y2="3"></line>
+                        <line x1="12" y1="21" x2="12" y2="23"></line>
+                        <line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line>
+                        <line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line>
+                        <line x1="1" y1="12" x2="3" y2="12"></line>
+                        <line x1="21" y1="12" x2="23" y2="12"></line>
+                        <line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line>
+                        <line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line>
+                    </svg>
+                </button>
+            </div>
+        </div>
+        <ul id="menu">
+            <li>
+                <a href="http://localhost:1313/about_me/" title="About me">
+                    <span>About me</span>
+                </a>
+            </li>
+            <li>
+                <a href="http://localhost:1313/archives/" title="Archive">
+                    <span>Archive</span>
+                </a>
+            </li>
+            <li>
+                <a href="http://localhost:1313/" title="Home">
+                    <span>Home</span>
+                </a>
+            </li>
+        </ul>
+    </nav>
+</header>
+<main class="main">
+
+<article class="post-single">
+  <header class="post-header">
+    <div class="breadcrumbs"><a href="http://localhost:1313/">Home</a>&nbsp;»&nbsp;<a href="http://localhost:1313/posts/">Posts</a></div>
+    <h1 class="post-title entry-hint-parent">
+      Global Error Handling
+    </h1>
+    <div class="post-meta"><span title='2024-09-30 19:58:16 +0300 EEST'>September 30, 2024</span>&nbsp;·&nbsp;12 min
+
+</div>
+  </header> <div class="toc">
+    <details >
+        <summary accesskey="c" title="(Alt + C)">
+            <span class="details">Table of Contents</span>
+        </summary>
+
+        <div class="inner"><ul>
+                <li>
+                    <a href="#global-error-handling-in-aspnet-core" aria-label="Global Error Handling in ASP.NET Core">Global Error Handling in ASP.NET Core</a><ul>
+                        
+                <li>
+                    <a href="#introduction" aria-label="Introduction">Introduction</a></li>
+                <li>
+                    <a href="#approach-1-error-handling-middleware" aria-label="Approach 1: Error Handling Middleware">Approach 1: Error Handling Middleware</a><ul>
+                        
+                <li>
+                    <a href="#implementation" aria-label="Implementation">Implementation</a><ul>
+                        
+                <li>
+                    <a href="#creating-the-middleware" aria-label="Creating the Middleware">Creating the Middleware</a></li>
+                <li>
+                    <a href="#registering-the-middleware" aria-label="Registering the Middleware">Registering the Middleware</a></li></ul>
+                </li>
+                <li>
+                    <a href="#how-it-works" aria-label="How It Works">How It Works</a></li></ul>
+                </li>
+                <li>
+                    <a href="#approach-2-exception-filter-attribute" aria-label="Approach 2: Exception Filter Attribute">Approach 2: Exception Filter Attribute</a><ul>
+                        
+                <li>
+                    <a href="#implementation-1" aria-label="Implementation">Implementation</a><ul>
+                        
+                <li>
+                    <a href="#returning-a-simple-json-error-response" aria-label="Returning a Simple JSON Error Response">Returning a Simple JSON Error Response</a></li>
+                <li>
+                    <a href="#using-problemdetails-for-detailed-error-information" aria-label="Using ProblemDetails for Detailed Error Information">Using ProblemDetails for Detailed Error Information</a></li>
+                <li>
+                    <a href="#applying-the-filter-globally" aria-label="Applying the Filter Globally">Applying the Filter Globally</a></li>
+                <li>
+                    <a href="#applying-the-filter-to-a-specific-controller" aria-label="Applying the Filter to a Specific Controller">Applying the Filter to a Specific Controller</a></li></ul>
+                </li>
+                <li>
+                    <a href="#how-it-works-1" aria-label="How It Works">How It Works</a></li></ul>
+                </li>
+                <li>
+                    <a href="#approach-3-useexceptionhandler-middleware-and-error-endpoint" aria-label="Approach 3: UseExceptionHandler Middleware and Error Endpoint">Approach 3: UseExceptionHandler Middleware and Error Endpoint</a><ul>
+                        
+                <li>
+                    <a href="#implementation-2" aria-label="Implementation">Implementation</a><ul>
+                        
+                <li>
+                    <a href="#configuring-the-middleware" aria-label="Configuring the Middleware">Configuring the Middleware</a></li>
+                <li>
+                    <a href="#creating-the-error-controller" aria-label="Creating the Error Controller">Creating the Error Controller</a></li>
+                <li>
+                    <a href="#useexceptionhandler-middleware-without-a-custom-error-endpoint" aria-label="UseExceptionHandler Middleware without a Custom Error Endpoint">UseExceptionHandler Middleware without a Custom Error Endpoint</a></li></ul>
+                </li>
+                <li>
+                    <a href="#how-it-works-2" aria-label="How It Works">How It Works</a></li></ul>
+                </li>
+                <li>
+                    <a href="#using-problemdetails-for-error-responses" aria-label="Using ProblemDetails for Error Responses">Using ProblemDetails for Error Responses</a><ul>
+                        
+                <li>
+                    <a href="#problemdetails-response-format" aria-label="ProblemDetails Response Format">ProblemDetails Response Format</a></li>
+                <li>
+                    <a href="#extending-problemdetails-for-global-error-handling" aria-label="Extending ProblemDetails for Global Error Handling">Extending ProblemDetails for Global Error Handling</a><ul>
+                        
+                <li>
+                    <a href="#customizing-with-addproblemdetails-in-net-7" aria-label="Customizing with AddProblemDetails() in .NET 7&#43;">Customizing with AddProblemDetails() in .NET 7+</a></li>
+                <li>
+                    <a href="#customizing-with-problemdetailsfactory-in-earlier-net-versions" aria-label="Customizing with ProblemDetailsFactory in Earlier .NET Versions">Customizing with ProblemDetailsFactory in Earlier .NET Versions</a></li></ul>
+                </li>
+                <li>
+                    <a href="#wrap-up" aria-label="Wrap-up">Wrap-up</a></li></ul>
+                </li>
+                <li>
+                    <a href="#conclusion" aria-label="Conclusion">Conclusion</a><ul>
+                        
+                <li>
+                    <a href="#remark" aria-label="Remark">Remark</a>
+                </li>
+            </ul>
+            </li>
+            </ul>
+            </li>
+            </ul>
+        </div>
+    </details>
+</div>
+
+  <div class="post-content"><h1 id="global-error-handling-in-aspnet-core">Global Error Handling in ASP.NET Core<a hidden class="anchor" aria-hidden="true" href="#global-error-handling-in-aspnet-core">#</a></h1>
+<h2 id="introduction">Introduction<a hidden class="anchor" aria-hidden="true" href="#introduction">#</a></h2>
+<p>Error handling is essential in web application development to ensure that unhandled exceptions are appropriately managed and that clients receive meaningful error responses. In ASP.NET Core, global error handling can be achieved using several techniques, each with its advantages and suitable use cases. This article will guide you through primary approaches:</p>
+<ol>
+<li><strong>Error Handling Middleware</strong></li>
+<li><strong>Exception Filter Attribute</strong></li>
+<li><strong>UseExceptionHandler Middleware with Custom Error Endpoint</strong></li>
+</ol>
+<p>We will also delve into using the <code>ProblemDetails</code> response format to provide standardized error information to clients, as recommended by RFC 7807.</p>
+<h2 id="approach-1-error-handling-middleware">Approach 1: Error Handling Middleware<a hidden class="anchor" aria-hidden="true" href="#approach-1-error-handling-middleware">#</a></h2>
+<h3 id="implementation">Implementation<a hidden class="anchor" aria-hidden="true" href="#implementation">#</a></h3>
+<p>The first approach involves creating custom middleware to catch exceptions that occur during the processing of HTTP requests. Here&rsquo;s how you can implement it:</p>
+<h4 id="creating-the-middleware">Creating the Middleware<a hidden class="anchor" aria-hidden="true" href="#creating-the-middleware">#</a></h4>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-csharp" data-lang="csharp"><span style="display:flex;"><span><span style="color:#66d9ef">using</span> System.Net;
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">using</span> System.Text.Json;
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">namespace</span> YourApp.Api.Middleware;
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">public</span> <span style="color:#66d9ef">class</span> <span style="color:#a6e22e">ErrorHandlingMiddleware</span>
+</span></span><span style="display:flex;"><span>{
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">private</span> <span style="color:#66d9ef">readonly</span> RequestDelegate _next;
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">public</span> ErrorHandlingMiddleware(RequestDelegate next)
+</span></span><span style="display:flex;"><span>    {
+</span></span><span style="display:flex;"><span>        _next = next;
+</span></span><span style="display:flex;"><span>    }
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">public</span> <span style="color:#66d9ef">async</span> Task Invoke(HttpContext context)
+</span></span><span style="display:flex;"><span>    {
+</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">try</span>
+</span></span><span style="display:flex;"><span>        {
+</span></span><span style="display:flex;"><span>            <span style="color:#66d9ef">await</span> _next(context);
+</span></span><span style="display:flex;"><span>        }
+</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">catch</span> (Exception ex)
+</span></span><span style="display:flex;"><span>        {
+</span></span><span style="display:flex;"><span>            <span style="color:#66d9ef">await</span> HandleExceptionAsync(context, ex);
+</span></span><span style="display:flex;"><span>        }
+</span></span><span style="display:flex;"><span>    }
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">private</span> <span style="color:#66d9ef">static</span> Task HandleExceptionAsync(HttpContext context, Exception exception)
+</span></span><span style="display:flex;"><span>    {
+</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">var</span> code = HttpStatusCode.InternalServerError; <span style="color:#75715e">// 500 if unexpected</span>
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">var</span> result = JsonSerializer.Serialize(<span style="color:#66d9ef">new</span> { error = <span style="color:#e6db74">&#34;An error occurred while processing your request.&#34;</span> });
+</span></span><span style="display:flex;"><span>        context.Response.ContentType = <span style="color:#e6db74">&#34;application/json&#34;</span>;
+</span></span><span style="display:flex;"><span>        context.Response.StatusCode = (<span style="color:#66d9ef">int</span>)code;
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">return</span> context.Response.WriteAsync(result);
+</span></span><span style="display:flex;"><span>    }
+</span></span><span style="display:flex;"><span>}
+</span></span></code></pre></div><h4 id="registering-the-middleware">Registering the Middleware<a hidden class="anchor" aria-hidden="true" href="#registering-the-middleware">#</a></h4>
+<p>In your <code>Program.cs</code> or <code>Startup.cs</code>, register the middleware:</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-csharp" data-lang="csharp"><span style="display:flex;"><span><span style="color:#66d9ef">using</span> YourApp.Api.Middleware;
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">var</span> builder = WebApplication.CreateBuilder(args);
+</span></span><span style="display:flex;"><span><span style="color:#75715e">// Configure services</span>
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">var</span> app = builder.Build();
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#75715e">// Add the error handling middleware</span>
+</span></span><span style="display:flex;"><span>app.UseMiddleware&lt;ErrorHandlingMiddleware&gt;();
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#75715e">// Configure the HTTP request pipeline</span>
+</span></span><span style="display:flex;"><span>app.UseHttpsRedirection();
+</span></span><span style="display:flex;"><span>app.MapControllers();
+</span></span><span style="display:flex;"><span>app.Run();
+</span></span></code></pre></div><h3 id="how-it-works">How It Works<a hidden class="anchor" aria-hidden="true" href="#how-it-works">#</a></h3>
+<ul>
+<li>The middleware wraps the next delegate in the pipeline with a <code>try-catch</code> block.
+If an exception occurs during request processing—whether before reaching the controller, during controller execution, or after—it is caught, and a generic error response is sent to the client.</li>
+<li>The middleware sets the response&rsquo;s status code to <code>500 Internal Server Error</code> and returns a JSON-formatted error message.
+This provides a unified error response, which is returning consistent error messages to the client.
+<strong>Example Server Response:</strong>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-http" data-lang="http"><span style="display:flex;"><span><span style="color:#66d9ef">HTTP</span><span style="color:#f92672">/</span><span style="color:#ae81ff">1.1</span> <span style="color:#ae81ff">500</span> <span style="color:#a6e22e">Internal Server Error</span>
+</span></span><span style="display:flex;"><span>Connection<span style="color:#f92672">:</span> <span style="color:#ae81ff">close</span>
+</span></span><span style="display:flex;"><span>Content-Type<span style="color:#f92672">:</span> <span style="color:#ae81ff">application/json</span>
+</span></span><span style="display:flex;"><span>Date<span style="color:#f92672">:</span> <span style="color:#ae81ff">[Response Date]</span>
+</span></span><span style="display:flex;"><span>Server<span style="color:#f92672">:</span> <span style="color:#ae81ff">[Server Name]</span>
+</span></span><span style="display:flex;"><span>Transfer-Encoding<span style="color:#f92672">:</span> <span style="color:#ae81ff">chunked</span>
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>{
+</span></span><span style="display:flex;"><span><span style="color:#f92672">&#34;error&#34;</span>: <span style="color:#e6db74">&#34;An error occurred while processing your request.&#34;</span>
+</span></span><span style="display:flex;"><span>}
+</span></span></code></pre></div></li>
+</ul>
+<p><strong>It catches exceptions in</strong>:</p>
+<ul>
+<li>In controllers or actions.</li>
+<li>In services or repositories called by controllers.</li>
+<li>In middleware registered after the Error Handling Middleware.</li>
+</ul>
+<p><strong>Exceptions Not Caught</strong>:</p>
+<ul>
+<li>In middleware components that are registered before the Error Handling Middleware will not be caught by it.</li>
+<li>After the response has begun being sent to the client, such as during response streaming, are not caught.</li>
+</ul>
+<h2 id="approach-2-exception-filter-attribute">Approach 2: Exception Filter Attribute<a hidden class="anchor" aria-hidden="true" href="#approach-2-exception-filter-attribute">#</a></h2>
+<h3 id="implementation-1">Implementation<a hidden class="anchor" aria-hidden="true" href="#implementation-1">#</a></h3>
+<p>The second approach uses an exception filter attribute that can be applied globally or to specific controllers.</p>
+<p>There are two main ways to implement the exception filter:</p>
+<ol>
+<li><strong>Returning a Simple JSON Error Response</strong></li>
+<li><strong>Using ProblemDetails for Detailed Error Information</strong></li>
+</ol>
+<h4 id="returning-a-simple-json-error-response">Returning a Simple JSON Error Response<a hidden class="anchor" aria-hidden="true" href="#returning-a-simple-json-error-response">#</a></h4>
+<p>In this variant, the exception filter catches exceptions and returns a simple JSON response with an error message.</p>
+<p><strong>Creating the Exception Filter:</strong></p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-csharp" data-lang="csharp"><span style="display:flex;"><span><span style="color:#66d9ef">using</span> Microsoft.AspNetCore.Mvc;
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">using</span> Microsoft.AspNetCore.Mvc.Filters;
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">namespace</span> YourApp.Api.Filters;
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">public</span> <span style="color:#66d9ef">class</span> <span style="color:#a6e22e">ErrorHandlingFilterAttribute</span> : ExceptionFilterAttribute
+</span></span><span style="display:flex;"><span>{
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">public</span> <span style="color:#66d9ef">override</span> <span style="color:#66d9ef">void</span> OnException(ExceptionContext context)
+</span></span><span style="display:flex;"><span>    {
+</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">var</span> exception = context.Exception;
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>        context.Result = <span style="color:#66d9ef">new</span> ObjectResult(<span style="color:#66d9ef">new</span> 
+</span></span><span style="display:flex;"><span>        { 
+</span></span><span style="display:flex;"><span>            error = <span style="color:#e6db74">&#34;An error occurred while processing your request.&#34;</span> 
+</span></span><span style="display:flex;"><span>        })
+</span></span><span style="display:flex;"><span>        {
+</span></span><span style="display:flex;"><span>            StatusCode = <span style="color:#ae81ff">500</span>
+</span></span><span style="display:flex;"><span>        };
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>        context.ExceptionHandled = <span style="color:#66d9ef">true</span>;
+</span></span><span style="display:flex;"><span>    }
+</span></span><span style="display:flex;"><span>}
+</span></span></code></pre></div><p>In this code:</p>
+<ul>
+<li>The <code>OnException</code> method is overridden to handle exceptions.</li>
+<li>When an exception occurs, the filter creates a new <code>ObjectResult</code> containing a JSON object with an <code>error</code> property.</li>
+<li>The status code is set to <code>500 Internal Server Error</code>.</li>
+<li><code>context.ExceptionHandled</code> is set to <code>true</code> to indicate that the exception has been handled.</li>
+</ul>
+<p><strong>Example Server Response:</strong></p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-http" data-lang="http"><span style="display:flex;"><span><span style="color:#66d9ef">HTTP</span><span style="color:#f92672">/</span><span style="color:#ae81ff">1.1</span> <span style="color:#ae81ff">500</span> <span style="color:#a6e22e">Internal Server Error</span>
+</span></span><span style="display:flex;"><span>Content-Type<span style="color:#f92672">:</span> <span style="color:#ae81ff">application/json;</span>
+</span></span><span style="display:flex;"><span>Date<span style="color:#f92672">:</span> <span style="color:#ae81ff">[Response Date]</span>
+</span></span><span style="display:flex;"><span>Server<span style="color:#f92672">:</span> <span style="color:#ae81ff">[Server Name]</span>
+</span></span><span style="display:flex;"><span>Transfer-Encoding<span style="color:#f92672">:</span> <span style="color:#ae81ff">chunked</span>
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>{
+</span></span><span style="display:flex;"><span>  <span style="color:#f92672">&#34;error&#34;</span>: <span style="color:#e6db74">&#34;An error occurred while processing your request.&#34;</span>
+</span></span><span style="display:flex;"><span>}
+</span></span></code></pre></div><p>This response provides a simple error message in JSON format, which can be easily parsed by clients.</p>
+<h4 id="using-problemdetails-for-detailed-error-information">Using ProblemDetails for Detailed Error Information<a hidden class="anchor" aria-hidden="true" href="#using-problemdetails-for-detailed-error-information">#</a></h4>
+<p>In this variant, the exception filter uses the <code>ProblemDetails</code> class to return standardized error information according to <a href="https://tools.ietf.org/html/rfc7807">RFC 7807</a>.</p>
+<p><strong>Creating the Exception Filter:</strong></p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-csharp" data-lang="csharp"><span style="display:flex;"><span><span style="color:#66d9ef">using</span> System.Net;
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">using</span> Microsoft.AspNetCore.Mvc;
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">using</span> Microsoft.AspNetCore.Mvc.Filters;
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">namespace</span> YourApp.Api.Filters;
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">public</span> <span style="color:#66d9ef">class</span> <span style="color:#a6e22e">ErrorHandlingFilterAttribute</span> : ExceptionFilterAttribute
+</span></span><span style="display:flex;"><span>{
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">public</span> <span style="color:#66d9ef">override</span> <span style="color:#66d9ef">void</span> OnException(ExceptionContext context)
+</span></span><span style="display:flex;"><span>    {
+</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">var</span> exception = context.Exception;
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">var</span> problemDetails = <span style="color:#66d9ef">new</span> ProblemDetails
+</span></span><span style="display:flex;"><span>        {
+</span></span><span style="display:flex;"><span>            Type = <span style="color:#e6db74">&#34;https://tools.ietf.org/html/rfc7231#section-6.6.1&#34;</span>,
+</span></span><span style="display:flex;"><span>            Title = <span style="color:#e6db74">&#34;An error occurred while processing your request.&#34;</span>,
+</span></span><span style="display:flex;"><span>            Status = (<span style="color:#66d9ef">int</span>)HttpStatusCode.InternalServerError,
+</span></span><span style="display:flex;"><span>        };
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>        context.Result = <span style="color:#66d9ef">new</span> ObjectResult(problemDetails);
+</span></span><span style="display:flex;"><span>        context.ExceptionHandled = <span style="color:#66d9ef">true</span>;
+</span></span><span style="display:flex;"><span>    }
+</span></span><span style="display:flex;"><span>}
+</span></span></code></pre></div><p>In this code:</p>
+<ul>
+<li>A <code>ProblemDetails</code> object is created to represent the error.</li>
+<li>The <code>Type</code> property provides a URI reference to the problem type, according to the HTTP specification.</li>
+<li>The <code>Title</code> and <code>Status</code> properties provide a human-readable summary and the HTTP status code, respectively.</li>
+<li>The <code>ProblemDetails</code> object is set as the result.</li>
+<li><code>context.ExceptionHandled</code> is set to <code>true</code> to prevent the exception from propagating further.</li>
+</ul>
+<p><strong>Example Server Response:</strong></p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-http" data-lang="http"><span style="display:flex;"><span><span style="color:#66d9ef">HTTP</span><span style="color:#f92672">/</span><span style="color:#ae81ff">1.1</span> <span style="color:#ae81ff">500</span> <span style="color:#a6e22e">Internal Server Error</span>
+</span></span><span style="display:flex;"><span>Content-Type<span style="color:#f92672">:</span> <span style="color:#ae81ff">application/problem+json;</span>
+</span></span><span style="display:flex;"><span>Date<span style="color:#f92672">:</span> <span style="color:#ae81ff">[Response Date]</span>
+</span></span><span style="display:flex;"><span>Server<span style="color:#f92672">:</span> <span style="color:#ae81ff">[Server Name]</span>
+</span></span><span style="display:flex;"><span>Transfer-Encoding<span style="color:#f92672">:</span> <span style="color:#ae81ff">chunked</span>
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>{
+</span></span><span style="display:flex;"><span>  <span style="color:#f92672">&#34;type&#34;</span>: <span style="color:#e6db74">&#34;https://tools.ietf.org/html/rfc7231#section-6.6.1&#34;</span>,
+</span></span><span style="display:flex;"><span>  <span style="color:#f92672">&#34;title&#34;</span>: <span style="color:#e6db74">&#34;An error occurred while processing your request.&#34;</span>,
+</span></span><span style="display:flex;"><span>  <span style="color:#f92672">&#34;status&#34;</span>: <span style="color:#ae81ff">500</span>
+</span></span><span style="display:flex;"><span>}
+</span></span></code></pre></div><p>This response conforms to the Problem Details specification, providing standardized error information that clients can utilize for better error handling.</p>
+<h4 id="applying-the-filter-globally">Applying the Filter Globally<a hidden class="anchor" aria-hidden="true" href="#applying-the-filter-globally">#</a></h4>
+<p>To apply the exception filter globally, register it in your <code>Program.cs</code> or <code>Startup.cs</code> file:</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-csharp" data-lang="csharp"><span style="display:flex;"><span><span style="color:#66d9ef">using</span> YourApp.Api.Filters;
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">var</span> builder = WebApplication.CreateBuilder(args);
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>builder.Services.AddControllers(options =&gt;
+</span></span><span style="display:flex;"><span>{
+</span></span><span style="display:flex;"><span>    options.Filters.Add&lt;ErrorHandlingFilterAttribute&gt;();
+</span></span><span style="display:flex;"><span>});
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">var</span> app = builder.Build();
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>app.UseHttpsRedirection();
+</span></span><span style="display:flex;"><span>app.MapControllers();
+</span></span><span style="display:flex;"><span>app.Run();
+</span></span></code></pre></div><p>This ensures the exception filter is applied to all controllers in the application.</p>
+<h4 id="applying-the-filter-to-a-specific-controller">Applying the Filter to a Specific Controller<a hidden class="anchor" aria-hidden="true" href="#applying-the-filter-to-a-specific-controller">#</a></h4>
+<p>You can also apply the filter to a single controller using an attribute:</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-csharp" data-lang="csharp"><span style="display:flex;"><span><span style="color:#a6e22e">[ApiController]</span>
+</span></span><span style="display:flex;"><span><span style="color:#a6e22e">[Route(&#34;auth&#34;)]</span>
+</span></span><span style="display:flex;"><span><span style="color:#a6e22e">[ErrorHandlingFilter]</span> <span style="color:#75715e">// Exception handling filter</span>
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">public</span> <span style="color:#66d9ef">class</span> <span style="color:#a6e22e">AuthenticationController</span> : ControllerBase
+</span></span><span style="display:flex;"><span>{
+</span></span><span style="display:flex;"><span>    <span style="color:#75715e">// Controller actions</span>
+</span></span><span style="display:flex;"><span>}
+</span></span></code></pre></div><p>This applies the filter only to the <code>AuthenticationController</code>, making it useful when you need custom exception handling for specific controllers.</p>
+<h3 id="how-it-works-1">How It Works<a hidden class="anchor" aria-hidden="true" href="#how-it-works-1">#</a></h3>
+<ul>
+<li>The <code>ErrorHandlingFilterAttribute</code> inherits from <code>ExceptionFilterAttribute</code> and overrides the <code>OnException</code> method. When an unhandled exception occurs within a controller action, the filter intercepts it and provides a standardized error response.</li>
+<li>The flag <code>context.ExceptionHandled = true</code> ensures that the exception is marked as handled, preventing it from propagating further in the request pipeline.</li>
+</ul>
+<p><strong>It catches exceptions in</strong>:</p>
+<ul>
+<li>Controller actions.</li>
+<li>Services or repositories invoked by controllers, as long as the exception is propagated back to the controller action.</li>
+</ul>
+<p><strong>Exceptions Not Caught</strong>:</p>
+<ul>
+<li>Exceptions that occur <strong>outside of MVC controllers</strong> (e.g., in middleware or during model binding) are not caught.</li>
+</ul>
+<p>This approach allows centralized error handling for controller actions, ensuring clean, consistent error responses without cluttering the controllers with exception-handling logic.</p>
+<h2 id="approach-3-useexceptionhandler-middleware-and-error-endpoint">Approach 3: UseExceptionHandler Middleware and Error Endpoint<a hidden class="anchor" aria-hidden="true" href="#approach-3-useexceptionhandler-middleware-and-error-endpoint">#</a></h2>
+<h3 id="implementation-2">Implementation<a hidden class="anchor" aria-hidden="true" href="#implementation-2">#</a></h3>
+<p>The third approach leverages the built-in <code>UseExceptionHandler</code> middleware, which redirects unhandled exceptions to a specified endpoint.</p>
+<h4 id="configuring-the-middleware">Configuring the Middleware<a hidden class="anchor" aria-hidden="true" href="#configuring-the-middleware">#</a></h4>
+<p>In <code>Program.cs</code> or <code>Startup.cs</code>, configure the middleware to catch unhandled exceptions and route them to <code>/error</code>:</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-csharp" data-lang="csharp"><span style="display:flex;"><span><span style="color:#66d9ef">var</span> builder = WebApplication.CreateBuilder(args);
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">var</span> app = builder.Build();
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#75715e">// Catches unhandled exceptions and redirects to the &#34;/error&#34; endpoint</span>
+</span></span><span style="display:flex;"><span>app.UseExceptionHandler(<span style="color:#e6db74">&#34;/error&#34;</span>);
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>app.UseHttpsRedirection();
+</span></span><span style="display:flex;"><span>app.MapControllers();
+</span></span><span style="display:flex;"><span>app.Run();
+</span></span></code></pre></div><h4 id="creating-the-error-controller">Creating the Error Controller<a hidden class="anchor" aria-hidden="true" href="#creating-the-error-controller">#</a></h4>
+<p>Create an <code>ErrorsController</code> to handle the errors redirected by the middleware:</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-csharp" data-lang="csharp"><span style="display:flex;"><span><span style="color:#66d9ef">using</span> Microsoft.AspNetCore.Diagnostics;
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">using</span> Microsoft.AspNetCore.Mvc;
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">namespace</span> YourApp.Api.Controllers;
+</span></span><span style="display:flex;"><span><span style="color:#a6e22e">
+</span></span></span><span style="display:flex;"><span><span style="color:#a6e22e">[ApiController]</span>
+</span></span><span style="display:flex;"><span><span style="color:#a6e22e">[Route(&#34;/error&#34;)]</span>
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">public</span> <span style="color:#66d9ef">class</span> <span style="color:#a6e22e">ErrorsController</span> : ControllerBase
+</span></span><span style="display:flex;"><span>{
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">public</span> IActionResult HandleError()
+</span></span><span style="display:flex;"><span>    {
+</span></span><span style="display:flex;"><span>        Exception? exception = HttpContext.Features.Get&lt;IExceptionHandlerFeature&gt;()?.Error;
+</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">return</span> Problem(); <span style="color:#75715e">// Returns a default ProblemDetails response (500 status)</span>
+</span></span><span style="display:flex;"><span>    }
+</span></span><span style="display:flex;"><span>}
+</span></span></code></pre></div><p><strong>Example Response (500 Internal Server Error)</strong>:</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-http" data-lang="http"><span style="display:flex;"><span><span style="color:#66d9ef">HTTP</span><span style="color:#f92672">/</span><span style="color:#ae81ff">1.1</span> <span style="color:#ae81ff">500</span> <span style="color:#a6e22e">Internal Server Error</span>
+</span></span><span style="display:flex;"><span>Content-Type<span style="color:#f92672">:</span> <span style="color:#ae81ff">application/problem+json; charset=utf-8</span>
+</span></span><span style="display:flex;"><span>Date<span style="color:#f92672">:</span> <span style="color:#ae81ff">[Response Date]</span>
+</span></span><span style="display:flex;"><span>Server<span style="color:#f92672">:</span> <span style="color:#ae81ff">[Server Name]</span>
+</span></span><span style="display:flex;"><span>Cache-Control<span style="color:#f92672">:</span> <span style="color:#ae81ff">no-cache, no-store</span>
+</span></span><span style="display:flex;"><span>Expires<span style="color:#f92672">:</span> <span style="color:#ae81ff">-1</span>
+</span></span><span style="display:flex;"><span>Pragma<span style="color:#f92672">:</span> <span style="color:#ae81ff">no-cache</span>
+</span></span><span style="display:flex;"><span>Transfer-Encoding<span style="color:#f92672">:</span> <span style="color:#ae81ff">chunked</span>
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>{
+</span></span><span style="display:flex;"><span>  <span style="color:#f92672">&#34;type&#34;</span>: <span style="color:#e6db74">&#34;https://tools.ietf.org/html/rfc7231#section-6.6.1&#34;</span>,
+</span></span><span style="display:flex;"><span>  <span style="color:#f92672">&#34;title&#34;</span>: <span style="color:#e6db74">&#34;An error occurred while processing your request.&#34;</span>,
+</span></span><span style="display:flex;"><span>  <span style="color:#f92672">&#34;status&#34;</span>: <span style="color:#ae81ff">500</span>,
+</span></span><span style="display:flex;"><span>  <span style="color:#f92672">&#34;traceId&#34;</span>: <span style="color:#e6db74">&#34;[Trace ID]&#34;</span>
+</span></span><span style="display:flex;"><span>}
+</span></span></code></pre></div><p><strong>Customizing the Response</strong></p>
+<p>You can customize the error response with a custom title and status code:</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-csharp" data-lang="csharp"><span style="display:flex;"><span><span style="color:#66d9ef">return</span> Problem(title: exception?.Message, statusCode: <span style="color:#ae81ff">400</span>);
+</span></span></code></pre></div><p><strong>Example Response (400 Bad Request)</strong>:</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-http" data-lang="http"><span style="display:flex;"><span><span style="color:#66d9ef">HTTP</span><span style="color:#f92672">/</span><span style="color:#ae81ff">1.1</span> <span style="color:#ae81ff">400</span> <span style="color:#a6e22e">Bad Request</span>
+</span></span><span style="display:flex;"><span>Content-Type<span style="color:#f92672">:</span> <span style="color:#ae81ff">application/problem+json; charset=utf-8</span>
+</span></span><span style="display:flex;"><span>Date<span style="color:#f92672">:</span> <span style="color:#ae81ff">[Response Date]</span>
+</span></span><span style="display:flex;"><span>Server<span style="color:#f92672">:</span> <span style="color:#ae81ff">[Server Name]</span>
+</span></span><span style="display:flex;"><span>Cache-Control<span style="color:#f92672">:</span> <span style="color:#ae81ff">no-cache, no-store</span>
+</span></span><span style="display:flex;"><span>Expires<span style="color:#f92672">:</span> <span style="color:#ae81ff">-1</span>
+</span></span><span style="display:flex;"><span>Pragma<span style="color:#f92672">:</span> <span style="color:#ae81ff">no-cache</span>
+</span></span><span style="display:flex;"><span>Transfer-Encoding<span style="color:#f92672">:</span> <span style="color:#ae81ff">chunked</span>
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>{
+</span></span><span style="display:flex;"><span>  <span style="color:#f92672">&#34;type&#34;</span>: <span style="color:#e6db74">&#34;https://tools.ietf.org/html/rfc7231#section-6.5.1&#34;</span>,
+</span></span><span style="display:flex;"><span>  <span style="color:#f92672">&#34;title&#34;</span>: <span style="color:#e6db74">&#34;User with given email already exists.&#34;</span>,
+</span></span><span style="display:flex;"><span>  <span style="color:#f92672">&#34;status&#34;</span>: <span style="color:#ae81ff">400</span>,
+</span></span><span style="display:flex;"><span>  <span style="color:#f92672">&#34;traceId&#34;</span>: <span style="color:#e6db74">&#34;[Trace ID]&#34;</span>
+</span></span><span style="display:flex;"><span>}
+</span></span></code></pre></div><p>This setup centralizes error handling, allowing you to customize error responses while maintaining a clean and maintainable codebase.</p>
+<h4 id="useexceptionhandler-middleware-without-a-custom-error-endpoint">UseExceptionHandler Middleware without a Custom Error Endpoint<a hidden class="anchor" aria-hidden="true" href="#useexceptionhandler-middleware-without-a-custom-error-endpoint">#</a></h4>
+<p>In this approach, exceptions are handled directly in a middleware extension, without a dedicated controller.</p>
+<p><strong>Middleware Extension Method</strong></p>
+<p>Here&rsquo;s the example of handling global errors without a custom error endpoint or manual <code>traceId</code> addition:</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-csharp" data-lang="csharp"><span style="display:flex;"><span><span style="color:#66d9ef">using</span> Microsoft.AspNetCore.Diagnostics;
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">public</span> <span style="color:#66d9ef">static</span> <span style="color:#66d9ef">class</span> <span style="color:#a6e22e">WebApplicationExtensions</span>
+</span></span><span style="display:flex;"><span>{
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">public</span> <span style="color:#66d9ef">static</span> WebApplication UseGlobalErrorHandling(<span style="color:#66d9ef">this</span> WebApplication app)
+</span></span><span style="display:flex;"><span>    {
+</span></span><span style="display:flex;"><span>        app.UseExceptionHandler(<span style="color:#e6db74">&#34;/error&#34;</span>);
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>        app.Map(<span style="color:#e6db74">&#34;/error&#34;</span>, (HttpContext httpContext) =&gt;
+</span></span><span style="display:flex;"><span>        {
+</span></span><span style="display:flex;"><span>            Exception? exception = httpContext.Features.Get&lt;IExceptionHandlerFeature&gt;()?.Error;
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>            <span style="color:#66d9ef">return</span> Results.Problem();
+</span></span><span style="display:flex;"><span>        });
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">return</span> app;
+</span></span><span style="display:flex;"><span>    }
+</span></span><span style="display:flex;"><span>}
+</span></span></code></pre></div><p><strong>Registering in <code>Program.cs</code></strong></p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-csharp" data-lang="csharp"><span style="display:flex;"><span><span style="color:#66d9ef">var</span> builder = WebApplication.CreateBuilder(args);
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">var</span> app = builder.Build();
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>app.UseGlobalErrorHandling();
+</span></span><span style="display:flex;"><span>app.UseHttpsRedirection();
+</span></span><span style="display:flex;"><span>app.MapControllers();
+</span></span><span style="display:flex;"><span>app.Run();
+</span></span></code></pre></div><p><strong>Example Response (500 Internal Server Error)</strong>:</p>
+<blockquote>
+<p>The <code>traceId</code> is not automatically included.</p>
+</blockquote>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-http" data-lang="http"><span style="display:flex;"><span><span style="color:#66d9ef">HTTP</span><span style="color:#f92672">/</span><span style="color:#ae81ff">1.1</span> <span style="color:#ae81ff">500</span> <span style="color:#a6e22e">Internal Server Error</span>
+</span></span><span style="display:flex;"><span>Content-Type<span style="color:#f92672">:</span> <span style="color:#ae81ff">application/problem+json; charset=utf-8</span>
+</span></span><span style="display:flex;"><span>Date<span style="color:#f92672">:</span> <span style="color:#ae81ff">[Response Date]</span>
+</span></span><span style="display:flex;"><span>Server<span style="color:#f92672">:</span> <span style="color:#ae81ff">[Server Name]</span>
+</span></span><span style="display:flex;"><span>Cache-Control<span style="color:#f92672">:</span> <span style="color:#ae81ff">no-cache, no-store</span>
+</span></span><span style="display:flex;"><span>Expires<span style="color:#f92672">:</span> <span style="color:#ae81ff">-1</span>
+</span></span><span style="display:flex;"><span>Pragma<span style="color:#f92672">:</span> <span style="color:#ae81ff">no-cache</span>
+</span></span><span style="display:flex;"><span>Transfer-Encoding<span style="color:#f92672">:</span> <span style="color:#ae81ff">chunked</span>
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>{
+</span></span><span style="display:flex;"><span>  <span style="color:#f92672">&#34;type&#34;</span>: <span style="color:#e6db74">&#34;https://tools.ietf.org/html/rfc7231#section-6.6.1&#34;</span>,
+</span></span><span style="display:flex;"><span>  <span style="color:#f92672">&#34;title&#34;</span>: <span style="color:#e6db74">&#34;An error occurred while processing your request.&#34;</span>,
+</span></span><span style="display:flex;"><span>  <span style="color:#f92672">&#34;status&#34;</span>: <span style="color:#ae81ff">500</span>
+</span></span><span style="display:flex;"><span>}
+</span></span></code></pre></div><h3 id="how-it-works-2">How It Works<a hidden class="anchor" aria-hidden="true" href="#how-it-works-2">#</a></h3>
+<ul>
+<li>The <code>UseExceptionHandler</code> middleware catches unhandled exceptions that occur <strong>after the middleware is registered</strong> in the pipeline and redirects the request to a specified endpoint (e.g., <code>/error</code>).</li>
+<li>The <code>ErrorsController</code> processes the error and returns a standardized response using the <code>Problem()</code> method, which constructs a <code>ProblemDetails</code> object compliant with RFC 7807.</li>
+</ul>
+<p><strong>Exceptions Caught</strong>:</p>
+<ul>
+<li><strong>In controllers</strong> during the execution of actions.</li>
+<li>In <strong>services</strong> or <strong>repositories</strong> called by controllers, provided they propagate up to the controller.</li>
+<li>In <strong>middleware registered after</strong> the <code>UseExceptionHandler</code> middleware.</li>
+<li>Any other exceptions in the pipeline, as long as they happen <strong>after the <code>UseExceptionHandler</code> middleware is registered</strong>.</li>
+</ul>
+<p><strong>Exceptions Not Caught</strong>:</p>
+<ul>
+<li><strong>Before the <code>UseExceptionHandler</code> middleware</strong> is registered in the pipeline.</li>
+<li><strong>After the response has started being sent</strong> to the client (e.g., during response streaming).</li>
+</ul>
+<h2 id="using-problemdetails-for-error-responses">Using ProblemDetails for Error Responses<a hidden class="anchor" aria-hidden="true" href="#using-problemdetails-for-error-responses">#</a></h2>
+<h3 id="problemdetails-response-format">ProblemDetails Response Format<a hidden class="anchor" aria-hidden="true" href="#problemdetails-response-format">#</a></h3>
+<p>The <code>ProblemDetails</code> class in ASP.NET Core implements the RFC 7807 specification for error responses. It standardizes error responses with properties such as:</p>
+<ul>
+<li><code>Type</code>: A URI reference that identifies the problem type.</li>
+<li><code>Title</code>: A short, human-readable summary of the problem type. This should remain consistent for similar errors (e.g., &ldquo;Bad Request&rdquo; or &ldquo;Unauthorized&rdquo;).</li>
+<li><code>Status</code>: The HTTP status code.</li>
+<li><code>Detail</code>: A human-readable explanation that is specific to this occurrence of the problem. Unlike the Title, the Detail may vary depending on the specific error (e.g., &ldquo;Invalid input parameters&rdquo; or &ldquo;User does not have sufficient credits&rdquo;).
+Avoid parsing information from Detail—instead, use extension fields for structured error data that the client might need to handle programmatically.</li>
+<li><code>Instance</code>: A URI reference that identifies the specific occurrence of the problem.</li>
+</ul>
+<p>Here&rsquo;s an example of a <code>ProblemDetails</code> response:</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-json" data-lang="json"><span style="display:flex;"><span>{
+</span></span><span style="display:flex;"><span>  <span style="color:#f92672">&#34;type&#34;</span>: <span style="color:#e6db74">&#34;https://tools.ietf.org/html/rfc7231#section-6.5.1&#34;</span>,
+</span></span><span style="display:flex;"><span>  <span style="color:#f92672">&#34;title&#34;</span>: <span style="color:#e6db74">&#34;Bad Request&#34;</span>,
+</span></span><span style="display:flex;"><span>  <span style="color:#f92672">&#34;status&#34;</span>: <span style="color:#ae81ff">400</span>,
+</span></span><span style="display:flex;"><span>  <span style="color:#f92672">&#34;detail&#34;</span>: <span style="color:#e6db74">&#34;Invalid input parameters.&#34;</span>,
+</span></span><span style="display:flex;"><span>  <span style="color:#f92672">&#34;instance&#34;</span>: <span style="color:#e6db74">&#34;/api/values/5&#34;</span>,
+</span></span><span style="display:flex;"><span>  <span style="color:#f92672">&#34;traceId&#34;</span>: <span style="color:#e6db74">&#34;|7ff13e2b-4dd3d7fbfb934bce.&#34;</span>
+</span></span><span style="display:flex;"><span>}
+</span></span></code></pre></div><h3 id="extending-problemdetails-for-global-error-handling">Extending ProblemDetails for Global Error Handling<a hidden class="anchor" aria-hidden="true" href="#extending-problemdetails-for-global-error-handling">#</a></h3>
+<p>Customizing <code>ProblemDetails</code> gives developers control to add extra information like <code>traceId</code>, modify error messages, or include additional metadata.</p>
+<p><strong>Customizing ProblemDetails</strong>
+There are two main ways to customize <code>ProblemDetails</code> based on your .NET version:</p>
+<ul>
+<li><strong>In .NET 7+</strong>, you can use <code>AddProblemDetails()</code> to modify error responses.</li>
+<li><strong>In earlier .NET versions</strong>, you can create a custom <code>ProblemDetailsFactory</code> to handle error logic.</li>
+</ul>
+<h4 id="customizing-with-addproblemdetails-in-net-7">Customizing with <code>AddProblemDetails()</code> in .NET 7+<a hidden class="anchor" aria-hidden="true" href="#customizing-with-addproblemdetails-in-net-7">#</a></h4>
+<p>To enhance error responses in .NET 7+ using <code>AddProblemDetails()</code>, we can add extra fields to <code>ProblemDetails</code> or modify existing ones.</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-csharp" data-lang="csharp"><span style="display:flex;"><span><span style="color:#66d9ef">public</span> <span style="color:#66d9ef">static</span> <span style="color:#66d9ef">class</span> <span style="color:#a6e22e">ServiceCollectionExtensions</span>
+</span></span><span style="display:flex;"><span>{
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">public</span> <span style="color:#66d9ef">static</span> IServiceCollection AddGlobalErrorHandling(<span style="color:#66d9ef">this</span> IServiceCollection services)
+</span></span><span style="display:flex;"><span>    {
+</span></span><span style="display:flex;"><span>        services.AddProblemDetails(options =&gt;
+</span></span><span style="display:flex;"><span>        {
+</span></span><span style="display:flex;"><span>            <span style="color:#75715e">// Customize ProblemDetails to add traceId and any other fields</span>
+</span></span><span style="display:flex;"><span>            options.CustomizeProblemDetails = context =&gt;
+</span></span><span style="display:flex;"><span>            {
+</span></span><span style="display:flex;"><span>                context.ProblemDetails.Extensions[<span style="color:#e6db74">&#34;traceId&#34;</span>] = context.HttpContext.TraceIdentifier;
+</span></span><span style="display:flex;"><span>                context.ProblemDetails.Extensions[<span style="color:#e6db74">&#34;customField&#34;</span>] = <span style="color:#e6db74">&#34;CustomValue&#34;</span>; <span style="color:#75715e">// Additional custom field</span>
+</span></span><span style="display:flex;"><span>            };
+</span></span><span style="display:flex;"><span>        });
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">return</span> services;
+</span></span><span style="display:flex;"><span>    }
+</span></span><span style="display:flex;"><span>}
+</span></span></code></pre></div><p>In this example, the <code>CustomizeProblemDetails</code> delegate is used to add custom information to every error response, such as a <code>traceId</code>, or any other custom fields that you want to include in your API responses.</p>
+<p><strong>Registering Global Error Handling in <code>Program.cs</code></strong></p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-csharp" data-lang="csharp"><span style="display:flex;"><span><span style="color:#66d9ef">var</span> builder = WebApplication.CreateBuilder(args);
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#75715e">// Add global error handling with ProblemDetails customization</span>
+</span></span><span style="display:flex;"><span>builder.Services.AddGlobalErrorHandling();
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">var</span> app = builder.Build();
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#75715e">// Ensure exceptions are caught and redirected to the error endpoint</span>
+</span></span><span style="display:flex;"><span>app.UseExceptionHandler(<span style="color:#e6db74">&#34;/error&#34;</span>);
+</span></span><span style="display:flex;"><span>app.UseHttpsRedirection();
+</span></span><span style="display:flex;"><span>app.MapControllers();
+</span></span><span style="display:flex;"><span>app.Run();
+</span></span></code></pre></div><p><strong>Example of Custom Response</strong></p>
+<p>Here’s an example of what an error response might look like with the added <code>traceId</code> and custom field:</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-http" data-lang="http"><span style="display:flex;"><span><span style="color:#66d9ef">HTTP</span><span style="color:#f92672">/</span><span style="color:#ae81ff">1.1</span> <span style="color:#ae81ff">500</span> <span style="color:#a6e22e">Internal Server Error</span>
+</span></span><span style="display:flex;"><span>Content-Type<span style="color:#f92672">:</span> <span style="color:#ae81ff">application/problem+json; charset=utf-8</span>
+</span></span><span style="display:flex;"><span>Date<span style="color:#f92672">:</span> <span style="color:#ae81ff">[Response Date]</span>
+</span></span><span style="display:flex;"><span>Server<span style="color:#f92672">:</span> <span style="color:#ae81ff">[Server Name]</span>
+</span></span><span style="display:flex;"><span>Cache-Control<span style="color:#f92672">:</span> <span style="color:#ae81ff">no-cache, no-store</span>
+</span></span><span style="display:flex;"><span>Expires<span style="color:#f92672">:</span> <span style="color:#ae81ff">-1</span>
+</span></span><span style="display:flex;"><span>Pragma<span style="color:#f92672">:</span> <span style="color:#ae81ff">no-cache</span>
+</span></span><span style="display:flex;"><span>Transfer-Encoding<span style="color:#f92672">:</span> <span style="color:#ae81ff">chunked</span>
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>{
+</span></span><span style="display:flex;"><span>  <span style="color:#f92672">&#34;type&#34;</span>: <span style="color:#e6db74">&#34;https://tools.ietf.org/html/rfc7231#section-6.6.1&#34;</span>,
+</span></span><span style="display:flex;"><span>  <span style="color:#f92672">&#34;title&#34;</span>: <span style="color:#e6db74">&#34;An error occurred while processing your request.&#34;</span>,
+</span></span><span style="display:flex;"><span>  <span style="color:#f92672">&#34;status&#34;</span>: <span style="color:#ae81ff">500</span>,
+</span></span><span style="display:flex;"><span>  <span style="color:#f92672">&#34;traceId&#34;</span>: <span style="color:#e6db74">&#34;[Trace ID]&#34;</span>,
+</span></span><span style="display:flex;"><span>  <span style="color:#f92672">&#34;customField&#34;</span>: <span style="color:#e6db74">&#34;CustomValue&#34;</span>
+</span></span><span style="display:flex;"><span>}
+</span></span></code></pre></div><h4 id="customizing-with-problemdetailsfactory-in-earlier-net-versions">Customizing with <code>ProblemDetailsFactory</code> in Earlier .NET Versions<a hidden class="anchor" aria-hidden="true" href="#customizing-with-problemdetailsfactory-in-earlier-net-versions">#</a></h4>
+<p>In .NET versions earlier than 7, the same functionality can be achieved by implementing a custom <code>ProblemDetailsFactory</code>.</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-csharp" data-lang="csharp"><span style="display:flex;"><span><span style="color:#66d9ef">using</span> System.Diagnostics;
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">using</span> Microsoft.AspNetCore.Mvc;
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">using</span> Microsoft.AspNetCore.Mvc.Infrastructure;
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">using</span> Microsoft.AspNetCore.Mvc.ModelBinding;
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">using</span> Microsoft.Extensions.Options;
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">namespace</span> YourApp.Api.Errors;
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">public</span> <span style="color:#66d9ef">class</span> <span style="color:#a6e22e">CustomProblemDetailsFactory</span> : ProblemDetailsFactory
+</span></span><span style="display:flex;"><span>{
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">private</span> <span style="color:#66d9ef">readonly</span> ApiBehaviorOptions _options;
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">public</span> CustomProblemDetailsFactory(IOptions&lt;ApiBehaviorOptions&gt; options)
+</span></span><span style="display:flex;"><span>    {
+</span></span><span style="display:flex;"><span>        _options = options?.Value ?? <span style="color:#66d9ef">throw</span> <span style="color:#66d9ef">new</span> ArgumentNullException(nameof(options));
+</span></span><span style="display:flex;"><span>    }
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">public</span> <span style="color:#66d9ef">override</span> ProblemDetails CreateProblemDetails(
+</span></span><span style="display:flex;"><span>        HttpContext httpContext,
+</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">int?</span> statusCode = <span style="color:#66d9ef">null</span>,
+</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">string?</span> title = <span style="color:#66d9ef">null</span>,
+</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">string?</span> type = <span style="color:#66d9ef">null</span>,
+</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">string?</span> detail = <span style="color:#66d9ef">null</span>,
+</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">string?</span> instance = <span style="color:#66d9ef">null</span>)
+</span></span><span style="display:flex;"><span>    {
+</span></span><span style="display:flex;"><span>        statusCode ??= <span style="color:#ae81ff">500</span>;
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">var</span> problemDetails = <span style="color:#66d9ef">new</span> ProblemDetails
+</span></span><span style="display:flex;"><span>        {
+</span></span><span style="display:flex;"><span>            Status = statusCode,
+</span></span><span style="display:flex;"><span>            Title = title ?? <span style="color:#e6db74">&#34;An error occurred while processing your request.&#34;</span>,
+</span></span><span style="display:flex;"><span>            Type = type,
+</span></span><span style="display:flex;"><span>            Detail = detail,
+</span></span><span style="display:flex;"><span>            Instance = instance,
+</span></span><span style="display:flex;"><span>        };
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>        ApplyProblemDetailsDefaults(httpContext, problemDetails, statusCode.Value);
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">return</span> problemDetails;
+</span></span><span style="display:flex;"><span>    }
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">public</span> <span style="color:#66d9ef">override</span> ValidationProblemDetails CreateValidationProblemDetails(
+</span></span><span style="display:flex;"><span>        HttpContext httpContext,
+</span></span><span style="display:flex;"><span>        ModelStateDictionary modelStateDictionary,
+</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">int?</span> statusCode = <span style="color:#66d9ef">null</span>,
+</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">string?</span> title = <span style="color:#66d9ef">null</span>,
+</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">string?</span> type = <span style="color:#66d9ef">null</span>,
+</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">string?</span> detail = <span style="color:#66d9ef">null</span>,
+</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">string?</span> instance = <span style="color:#66d9ef">null</span>)
+</span></span><span style="display:flex;"><span>    {
+</span></span><span style="display:flex;"><span>        statusCode ??= <span style="color:#ae81ff">400</span>;
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">var</span> problemDetails = <span style="color:#66d9ef">new</span> ValidationProblemDetails(modelStateDictionary)
+</span></span><span style="display:flex;"><span>        {
+</span></span><span style="display:flex;"><span>            Status = statusCode,
+</span></span><span style="display:flex;"><span>            Title = title ?? <span style="color:#e6db74">&#34;One or more validation errors occurred.&#34;</span>,
+</span></span><span style="display:flex;"><span>            Type = type,
+</span></span><span style="display:flex;"><span>            Detail = detail,
+</span></span><span style="display:flex;"><span>            Instance = instance,
+</span></span><span style="display:flex;"><span>        };
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>        ApplyProblemDetailsDefaults(httpContext, problemDetails, statusCode.Value);
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">return</span> problemDetails;
+</span></span><span style="display:flex;"><span>    }
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">private</span> <span style="color:#66d9ef">void</span> ApplyProblemDetailsDefaults(HttpContext httpContext, ProblemDetails problemDetails, <span style="color:#66d9ef">int</span> statusCode)
+</span></span><span style="display:flex;"><span>    {
+</span></span><span style="display:flex;"><span>        problemDetails.Status ??= statusCode;
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">if</span> (_options.ClientErrorMapping.TryGetValue(statusCode, <span style="color:#66d9ef">out</span> <span style="color:#66d9ef">var</span> clientErrorData))
+</span></span><span style="display:flex;"><span>        {
+</span></span><span style="display:flex;"><span>            problemDetails.Title ??= clientErrorData.Title;
+</span></span><span style="display:flex;"><span>            problemDetails.Type ??= clientErrorData.Link;
+</span></span><span style="display:flex;"><span>        }
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">var</span> traceId = Activity.Current?.Id ?? httpContext?.TraceIdentifier;
+</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">if</span> (traceId != <span style="color:#66d9ef">null</span>)
+</span></span><span style="display:flex;"><span>        {
+</span></span><span style="display:flex;"><span>            problemDetails.Extensions[<span style="color:#e6db74">&#34;traceId&#34;</span>] = traceId;
+</span></span><span style="display:flex;"><span>        }
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>        <span style="color:#75715e">// Add custom properties</span>
+</span></span><span style="display:flex;"><span>        problemDetails.Extensions.Add(<span style="color:#e6db74">&#34;customProperty&#34;</span>, <span style="color:#e6db74">&#34;customValue&#34;</span>);
+</span></span><span style="display:flex;"><span>    }
+</span></span><span style="display:flex;"><span>}
+</span></span></code></pre></div><p><strong>Registering the Custom Factory</strong></p>
+<p>In <code>Program.cs</code>, register this custom factory as a service:</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-csharp" data-lang="csharp"><span style="display:flex;"><span><span style="color:#66d9ef">var</span> builder = WebApplication.CreateBuilder(args);
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#75715e">// Register the custom ProblemDetailsFactory</span>
+</span></span><span style="display:flex;"><span>builder.Services.AddSingleton&lt;ProblemDetailsFactory, CustomProblemDetailsFactory&gt;();
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">var</span> app = builder.Build();
+</span></span><span style="display:flex;"><span>app.UseExceptionHandler(<span style="color:#e6db74">&#34;/error&#34;</span>);
+</span></span><span style="display:flex;"><span>app.UseHttpsRedirection();
+</span></span><span style="display:flex;"><span>app.MapControllers();
+</span></span><span style="display:flex;"><span>app.Run();
+</span></span></code></pre></div><p><strong>Example of Custom Response with Custom Factory</strong></p>
+<p>Here’s a similar error response with custom data from the <code>ProblemDetailsFactory</code>:</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-http" data-lang="http"><span style="display:flex;"><span><span style="color:#66d9ef">HTTP</span><span style="color:#f92672">/</span><span style="color:#ae81ff">1.1</span> <span style="color:#ae81ff">500</span> <span style="color:#a6e22e">Internal Server Error</span>
+</span></span><span style="display:flex;"><span>Content-Type<span style="color:#f92672">:</span> <span style="color:#ae81ff">application/problem+json; charset=utf-8</span>
+</span></span><span style="display:flex;"><span>Date<span style="color:#f92672">:</span> <span style="color:#ae81ff">[Response Date]</span>
+</span></span><span style="display:flex;"><span>Server<span style="color:#f92672">:</span> <span style="color:#ae81ff">[Server Name]</span>
+</span></span><span style="display:flex;"><span>Cache-Control<span style="color:#f92672">:</span> <span style="color:#ae81ff">no-cache, no-store</span>
+</span></span><span style="display:flex;"><span>Expires<span style="color:#f92672">:</span> <span style="color:#ae81ff">-1</span>
+</span></span><span style="display:flex;"><span>Pragma<span style="color:#f92672">:</span> <span style="color:#ae81ff">no-cache</span>
+</span></span><span style="display:flex;"><span>Transfer-Encoding<span style="color:#f92672">:</span> <span style="color:#ae81ff">chunked</span>
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>{
+</span></span><span style="display:flex;"><span>  <span style="color:#f92672">&#34;type&#34;</span>: <span style="color:#e6db74">&#34;https://tools.ietf.org/html/rfc7231#section-6.6.1&#34;</span>,
+</span></span><span style="display:flex;"><span>  <span style="color:#f92672">&#34;title&#34;</span>: <span style="color:#e6db74">&#34;An error occurred.&#34;</span>,
+</span></span><span style="display:flex;"><span>  <span style="color:#f92672">&#34;status&#34;</span>: <span style="color:#ae81ff">500</span>,
+</span></span><span style="display:flex;"><span>  <span style="color:#f92672">&#34;traceId&#34;</span>: <span style="color:#e6db74">&#34;[Trace ID]&#34;</span>,
+</span></span><span style="display:flex;"><span>  <span style="color:#f92672">&#34;customProperty&#34;</span>: <span style="color:#e6db74">&#34;customValue&#34;</span>
+</span></span><span style="display:flex;"><span>}
+</span></span></code></pre></div><h3 id="wrap-up">Wrap-up<a hidden class="anchor" aria-hidden="true" href="#wrap-up">#</a></h3>
+<p>By customizing <code>ProblemDetails</code>, you can provide detailed and useful error responses in a standardized format, allowing better error handling for clients. With <code>.NET 7+</code>, this process is made easier through <code>AddProblemDetails()</code>, while earlier versions require a custom <code>ProblemDetailsFactory</code> for similar functionality. In both cases, you can ensure that error responses are consistent, informative, and secure.</p>
+<h2 id="conclusion">Conclusion<a hidden class="anchor" aria-hidden="true" href="#conclusion">#</a></h2>
+<p>Global error handling in ASP.NET Core can be achieved through various methods, each with its own advantages. By using middleware, exception filters, or the built-in <code>UseExceptionHandler</code> middleware, you can catch exceptions and provide consistent, meaningful responses to clients. Leveraging the <code>ProblemDetails</code> response format helps standardize error responses and improves client-side error handling.</p>
+<table>
+  <thead>
+      <tr>
+          <th style="text-align: left"><strong>Method</strong></th>
+          <th style="text-align: left"><strong>Exceptions in Controllers</strong></th>
+          <th style="text-align: left"><strong>Exceptions in Services or Repositories</strong></th>
+          <th style="text-align: left"><strong>Exceptions in Middleware Registered After</strong></th>
+          <th style="text-align: left"><strong>Exceptions in Middleware Registered Before</strong></th>
+          <th style="text-align: left"><strong>Exceptions After Response Sent</strong></th>
+      </tr>
+  </thead>
+  <tbody>
+      <tr>
+          <td style="text-align: left"><strong>Error Handling Middleware</strong></td>
+          <td style="text-align: left"><strong>Yes</strong></td>
+          <td style="text-align: left"><strong>Yes</strong></td>
+          <td style="text-align: left"><strong>Yes</strong></td>
+          <td style="text-align: left"><strong>No</strong></td>
+          <td style="text-align: left"><strong>No</strong></td>
+      </tr>
+      <tr>
+          <td style="text-align: left"><strong>Exception Filter Attribute</strong></td>
+          <td style="text-align: left"><strong>Yes</strong></td>
+          <td style="text-align: left"><strong>Yes</strong></td>
+          <td style="text-align: left"><strong>No</strong></td>
+          <td style="text-align: left"><strong>No</strong></td>
+          <td style="text-align: left"><strong>No</strong></td>
+      </tr>
+      <tr>
+          <td style="text-align: left"><strong>UseExceptionHandler Middleware</strong></td>
+          <td style="text-align: left"><strong>Yes</strong></td>
+          <td style="text-align: left"><strong>Yes</strong></td>
+          <td style="text-align: left"><strong>Yes</strong></td>
+          <td style="text-align: left"><strong>No</strong></td>
+          <td style="text-align: left"><strong>No</strong></td>
+      </tr>
+  </tbody>
+</table>
+<h3 id="remark">Remark<a hidden class="anchor" aria-hidden="true" href="#remark">#</a></h3>
+<p>While these approaches centralize exception handling, proper error <strong>flow management</strong> is crucial. Simply allowing exceptions to bubble up will result in a generic 500 response. Services, like a review service, should handle errors correctly to provide meaningful responses instead of unnecessary exceptions.</p>
+
+
+  </div>
+
+  <footer class="post-footer">
+    <ul class="post-tags">
+      <li><a href="http://localhost:1313/tags/clean-architecture/">Clean Architecture</a></li>
+    </ul>
+<nav class="paginav">
+  <a class="prev" href="http://localhost:1313/posts/clean-architecture/object-mapping-mapster/">
+    <span class="title">« Prev</span>
+    <br>
+    <span>Object Mapping</span>
+  </a>
+  <a class="next" href="http://localhost:1313/posts/clean-architecture/introduction/">
+    <span class="title">Next »</span>
+    <br>
+    <span>Introduction to Clean Architecture</span>
+  </a>
+</nav>
+
+  </footer>
+</article>
+    </main>
+
+    
+    
+
+    
+<footer class="footer">
+        <span>&copy; 2024 <a href="http://localhost:1313/">victoria notes</a></span> · 
+
+    <span>
+        Powered by
+        <a href="https://gohugo.io/" rel="noopener noreferrer" target="_blank">Hugo</a> &
+        <a href="https://github.com/adityatelange/hugo-PaperMod/" rel="noopener" target="_blank">PaperMod</a>
+    </span>
+</footer>
+<a href="#top" aria-label="go to top" title="Go to Top (Alt + G)" class="top-link" id="top-link" accesskey="g">
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 12 6" fill="currentColor">
+        <path d="M12 6H0l6-6z" />
+    </svg>
+</a>
+
+<script>
+    let menu = document.getElementById('menu')
+    if (menu) {
+        menu.scrollLeft = localStorage.getItem("menu-scroll-position");
+        menu.onscroll = function () {
+            localStorage.setItem("menu-scroll-position", menu.scrollLeft);
+        }
+    }
+
+    document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+        anchor.addEventListener("click", function (e) {
+            e.preventDefault();
+            var id = this.getAttribute("href").substr(1);
+            if (!window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+                document.querySelector(`[id='${decodeURIComponent(id)}']`).scrollIntoView({
+                    behavior: "smooth"
+                });
+            } else {
+                document.querySelector(`[id='${decodeURIComponent(id)}']`).scrollIntoView();
+            }
+            if (id === "top") {
+                history.replaceState(null, null, " ");
+            } else {
+                history.pushState(null, null, `#${id}`);
+            }
+        });
+    });
+
+</script>
+<script>
+    var mybutton = document.getElementById("top-link");
+    window.onscroll = function () {
+        if (document.body.scrollTop > 800 || document.documentElement.scrollTop > 800) {
+            mybutton.style.visibility = "visible";
+            mybutton.style.opacity = "1";
+        } else {
+            mybutton.style.visibility = "hidden";
+            mybutton.style.opacity = "0";
+        }
+    };
+
+</script>
+<script>
+    document.getElementById("theme-toggle").addEventListener("click", () => {
+        if (document.body.className.includes("dark")) {
+            document.body.classList.remove('dark');
+            localStorage.setItem("pref-theme", 'light');
+        } else {
+            document.body.classList.add('dark');
+            localStorage.setItem("pref-theme", 'dark');
+        }
+    })
+
+</script>
+</body>
+
+</html>

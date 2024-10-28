@@ -1,0 +1,70 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom" xmlns:content="http://purl.org/rss/1.0/modules/content/">
+  <channel>
+    <title>Home on victoria notes</title>
+    <link>http://localhost:1313/</link>
+    <description>Recent content in Home on victoria notes</description>
+    <generator>Hugo -- 0.135.0</generator>
+    <language>en-us</language>
+    <lastBuildDate>Mon, 28 Oct 2024 19:58:16 +0300</lastBuildDate>
+    <atom:link href="http://localhost:1313/index.xml" rel="self" type="application/rss+xml" />
+    <item>
+      <title>Object Mapping</title>
+      <link>http://localhost:1313/posts/clean-architecture/object-mapping-mapster/</link>
+      <pubDate>Mon, 28 Oct 2024 19:58:16 +0300</pubDate>
+      <guid>http://localhost:1313/posts/clean-architecture/object-mapping-mapster/</guid>
+      <description>&lt;h1 id=&#34;object-mapping-with-mapster&#34;&gt;Object Mapping with Mapster&lt;/h1&gt;
+&lt;p&gt;Object mapping is the process of transferring properties from one object to another, commonly used in modular or layered applications. This approach is particularly valuable in systems with clean architecture or domain-driven design, allowing seamless data transfer between modules or mapping request objects to data models, commands, or database entities.&lt;/p&gt;
+&lt;p&gt;We will explore object mapping using the Mapster library in C#, a fast and flexible alternative to other mapping libraries like AutoMapper.&lt;/p&gt;</description>
+    </item>
+    <item>
+      <title>Global Error Handling</title>
+      <link>http://localhost:1313/posts/clean-architecture/global-error-handling/</link>
+      <pubDate>Mon, 30 Sep 2024 19:58:16 +0300</pubDate>
+      <guid>http://localhost:1313/posts/clean-architecture/global-error-handling/</guid>
+      <description>&lt;h1 id=&#34;global-error-handling-in-aspnet-core&#34;&gt;Global Error Handling in ASP.NET Core&lt;/h1&gt;
+&lt;h2 id=&#34;introduction&#34;&gt;Introduction&lt;/h2&gt;
+&lt;p&gt;Error handling is essential in web application development to ensure that unhandled exceptions are appropriately managed and that clients receive meaningful error responses. In ASP.NET Core, global error handling can be achieved using several techniques, each with its advantages and suitable use cases. This article will guide you through primary approaches:&lt;/p&gt;
+&lt;ol&gt;
+&lt;li&gt;&lt;strong&gt;Error Handling Middleware&lt;/strong&gt;&lt;/li&gt;
+&lt;li&gt;&lt;strong&gt;Exception Filter Attribute&lt;/strong&gt;&lt;/li&gt;
+&lt;li&gt;&lt;strong&gt;UseExceptionHandler Middleware with Custom Error Endpoint&lt;/strong&gt;&lt;/li&gt;
+&lt;/ol&gt;
+&lt;p&gt;We will also delve into using the &lt;code&gt;ProblemDetails&lt;/code&gt; response format to provide standardized error information to clients, as recommended by RFC 7807.&lt;/p&gt;</description>
+    </item>
+    <item>
+      <title>Introduction to Clean Architecture</title>
+      <link>http://localhost:1313/posts/clean-architecture/introduction/</link>
+      <pubDate>Mon, 30 Sep 2024 19:58:16 +0300</pubDate>
+      <guid>http://localhost:1313/posts/clean-architecture/introduction/</guid>
+      <description>&lt;h1 id=&#34;introduction-to-clean-architecture&#34;&gt;Introduction to Clean Architecture&lt;/h1&gt;
+&lt;h2 id=&#34;software-architecture&#34;&gt;Software Architecture&lt;/h2&gt;
+&lt;blockquote&gt;
+&lt;p&gt;&lt;strong&gt;Software architecture&lt;/strong&gt; defines the structure of a system, its components, their relationships, and design principles to ensure the system meets its functional and non-functional needs.&lt;/p&gt;
+&lt;/blockquote&gt;
+&lt;h3 id=&#34;key-concepts&#34;&gt;Key Concepts&lt;/h3&gt;
+&lt;details&gt;
+  &lt;summary&gt;&lt;strong&gt;Components&lt;/strong&gt;&lt;/summary&gt;
+  &lt;p&gt;The building blocks of the system, including services, modules, and databases.&lt;/p&gt;
+&lt;/details&gt;
+&lt;details&gt;
+  &lt;summary&gt;&lt;strong&gt;Relationships&lt;/strong&gt;&lt;/summary&gt;
+  &lt;p&gt;Defines how components communicate and interact with each other.&lt;/p&gt;
+&lt;/details&gt;
+&lt;details&gt;
+  &lt;summary&gt;&lt;strong&gt;Design Principles&lt;/strong&gt;&lt;/summary&gt;
+  &lt;p&gt;Guidelines that ensure the system is scalable, maintainable, and secure.&lt;/p&gt;
+&lt;/details&gt;
+&lt;details&gt;
+  &lt;summary&gt;&lt;strong&gt;Architectural Patterns&lt;/strong&gt;&lt;/summary&gt;
+  &lt;p&gt;The overall structure used, such as microservices, layered architecture, etc.&lt;/p&gt;</description>
+    </item>
+    <item>
+      <title>About me</title>
+      <link>http://localhost:1313/about_me/</link>
+      <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
+      <guid>http://localhost:1313/about_me/</guid>
+      <description>&lt;p&gt;Test github actions.&lt;/p&gt;</description>
+    </item>
+  </channel>
+</rss>

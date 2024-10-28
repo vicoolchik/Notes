@@ -1,0 +1,483 @@
+<!DOCTYPE html>
+<html lang="en" dir="auto">
+
+<head><script src="/livereload.js?mindelay=10&amp;v=2&amp;port=1313&amp;path=livereload" data-no-instant defer></script><meta charset="utf-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+<meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+<meta name="robots" content="noindex, nofollow">
+<title>Introduction to Clean Architecture | victoria notes</title>
+<meta name="keywords" content="Clean Architecture">
+<meta name="description" content="Introduction to Clean Architecture
+Software Architecture
+
+Software architecture defines the structure of a system, its components, their relationships, and design principles to ensure the system meets its functional and non-functional needs.
+
+Key Concepts
+
+  Components
+  The building blocks of the system, including services, modules, and databases.
+
+
+  Relationships
+  Defines how components communicate and interact with each other.
+
+
+  Design Principles
+  Guidelines that ensure the system is scalable, maintainable, and secure.
+
+
+  Architectural Patterns
+  The overall structure used, such as microservices, layered architecture, etc.">
+<meta name="author" content="">
+<link rel="canonical" href="http://localhost:1313/posts/clean-architecture/introduction/">
+<link crossorigin="anonymous" href="/assets/css/stylesheet.b609c58d5c11bb90b1a54e04005d74ad1ddf22165eb79f5533967e57df9c3b50.css" integrity="sha256-tgnFjVwRu5CxpU4EAF10rR3fIhZet59VM5Z&#43;V9&#43;cO1A=" rel="preload stylesheet" as="style">
+<link rel="icon" href="http://localhost:1313/favicon.ico">
+<link rel="icon" type="image/png" sizes="16x16" href="http://localhost:1313/favicon-16x16.png">
+<link rel="icon" type="image/png" sizes="32x32" href="http://localhost:1313/favicon-32x32.png">
+<link rel="apple-touch-icon" href="http://localhost:1313/apple-touch-icon.png">
+<link rel="mask-icon" href="http://localhost:1313/safari-pinned-tab.svg">
+<meta name="theme-color" content="#2e2e33">
+<meta name="msapplication-TileColor" content="#2e2e33">
+<link rel="alternate" hreflang="en" href="http://localhost:1313/posts/clean-architecture/introduction/">
+<noscript>
+    <style>
+        #theme-toggle,
+        .top-link {
+            display: none;
+        }
+
+    </style>
+    <style>
+        @media (prefers-color-scheme: dark) {
+            :root {
+                --theme: rgb(29, 30, 32);
+                --entry: rgb(46, 46, 51);
+                --primary: rgb(218, 218, 219);
+                --secondary: rgb(155, 156, 157);
+                --tertiary: rgb(65, 66, 68);
+                --content: rgb(196, 196, 197);
+                --code-block-bg: rgb(46, 46, 51);
+                --code-bg: rgb(55, 56, 62);
+                --border: rgb(51, 51, 51);
+            }
+
+            .list {
+                background: var(--theme);
+            }
+
+            .list:not(.dark)::-webkit-scrollbar-track {
+                background: 0 0;
+            }
+
+            .list:not(.dark)::-webkit-scrollbar-thumb {
+                border-color: var(--theme);
+            }
+        }
+
+    </style>
+</noscript>
+    
+  
+
+</head>
+
+<body class="" id="top">
+<script>
+    if (localStorage.getItem("pref-theme") === "dark") {
+        document.body.classList.add('dark');
+    } else if (localStorage.getItem("pref-theme") === "light") {
+        document.body.classList.remove('dark')
+    } else if (window.matchMedia('(prefers-color-scheme: dark)').matches) {
+        document.body.classList.add('dark');
+    }
+
+</script>
+
+<header class="header">
+    <nav class="nav">
+        <div class="logo">
+            <a href="http://localhost:1313/" accesskey="h" title="victoria notes (Alt + H)">victoria notes</a>
+            <div class="logo-switches">
+                <button id="theme-toggle" accesskey="t" title="(Alt + T)">
+                    <svg id="moon" xmlns="http://www.w3.org/2000/svg" width="24" height="18" viewBox="0 0 24 24"
+                        fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                        stroke-linejoin="round">
+                        <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path>
+                    </svg>
+                    <svg id="sun" xmlns="http://www.w3.org/2000/svg" width="24" height="18" viewBox="0 0 24 24"
+                        fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                        stroke-linejoin="round">
+                        <circle cx="12" cy="12" r="5"></circle>
+                        <line x1="12" y1="1" x2="12" y2="3"></line>
+                        <line x1="12" y1="21" x2="12" y2="23"></line>
+                        <line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line>
+                        <line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line>
+                        <line x1="1" y1="12" x2="3" y2="12"></line>
+                        <line x1="21" y1="12" x2="23" y2="12"></line>
+                        <line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line>
+                        <line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line>
+                    </svg>
+                </button>
+            </div>
+        </div>
+        <ul id="menu">
+            <li>
+                <a href="http://localhost:1313/about_me/" title="About me">
+                    <span>About me</span>
+                </a>
+            </li>
+            <li>
+                <a href="http://localhost:1313/archives/" title="Archive">
+                    <span>Archive</span>
+                </a>
+            </li>
+            <li>
+                <a href="http://localhost:1313/" title="Home">
+                    <span>Home</span>
+                </a>
+            </li>
+        </ul>
+    </nav>
+</header>
+<main class="main">
+
+<article class="post-single">
+  <header class="post-header">
+    <div class="breadcrumbs"><a href="http://localhost:1313/">Home</a>&nbsp;»&nbsp;<a href="http://localhost:1313/posts/">Posts</a></div>
+    <h1 class="post-title entry-hint-parent">
+      Introduction to Clean Architecture
+    </h1>
+    <div class="post-meta"><span title='2024-09-30 19:58:16 +0300 EEST'>September 30, 2024</span>&nbsp;·&nbsp;3 min
+
+</div>
+  </header> <div class="toc">
+    <details >
+        <summary accesskey="c" title="(Alt + C)">
+            <span class="details">Table of Contents</span>
+        </summary>
+
+        <div class="inner"><ul>
+                <li>
+                    <a href="#introduction-to-clean-architecture" aria-label="Introduction to Clean Architecture">Introduction to Clean Architecture</a><ul>
+                        
+                <li>
+                    <a href="#software-architecture" aria-label="Software Architecture">Software Architecture</a><ul>
+                        
+                <li>
+                    <a href="#key-concepts" aria-label="Key Concepts">Key Concepts</a></li></ul>
+                </li>
+                <li>
+                    <a href="#architecture-pattern" aria-label="Architecture Pattern:">Architecture Pattern:</a></li>
+                <li>
+                    <a href="#examples-of-architecture-patterns" aria-label="Examples of Architecture Patterns:">Examples of Architecture Patterns:</a><ul>
+                        
+                <li>
+                    <a href="#layered-architecture-flow" aria-label="Layered Architecture Flow">Layered Architecture Flow</a></li>
+                <li>
+                    <a href="#architectural-issues" aria-label="Architectural Issues">Architectural Issues</a></li>
+                <li>
+                    <a href="#clean-architecture" aria-label="Clean Architecture">Clean Architecture</a></li>
+                <li>
+                    <a href="#project-setup-script" aria-label="Project Setup Script">Project Setup Script</a>
+                </li>
+            </ul>
+            </li>
+            </ul>
+            </li>
+            </ul>
+        </div>
+    </details>
+</div>
+
+  <div class="post-content"><h1 id="introduction-to-clean-architecture">Introduction to Clean Architecture<a hidden class="anchor" aria-hidden="true" href="#introduction-to-clean-architecture">#</a></h1>
+<h2 id="software-architecture">Software Architecture<a hidden class="anchor" aria-hidden="true" href="#software-architecture">#</a></h2>
+<blockquote>
+<p><strong>Software architecture</strong> defines the structure of a system, its components, their relationships, and design principles to ensure the system meets its functional and non-functional needs.</p>
+</blockquote>
+<h3 id="key-concepts">Key Concepts<a hidden class="anchor" aria-hidden="true" href="#key-concepts">#</a></h3>
+<details>
+  <summary><strong>Components</strong></summary>
+  <p>The building blocks of the system, including services, modules, and databases.</p>
+</details>
+<details>
+  <summary><strong>Relationships</strong></summary>
+  <p>Defines how components communicate and interact with each other.</p>
+</details>
+<details>
+  <summary><strong>Design Principles</strong></summary>
+  <p>Guidelines that ensure the system is scalable, maintainable, and secure.</p>
+</details>
+<details>
+  <summary><strong>Architectural Patterns</strong></summary>
+  <p>The overall structure used, such as microservices, layered architecture, etc.</p>
+</details>
+<details>
+  <summary><strong>Technology Stack</strong></summary>
+  <p>The programming languages, frameworks, and tools used to build the system.</p>
+</details>
+<h2 id="architecture-pattern">Architecture Pattern:<a hidden class="anchor" aria-hidden="true" href="#architecture-pattern">#</a></h2>
+<blockquote>
+<p><strong>Architecture Pattern</strong> is a general, reusable resolution to a commonly occurring problem in software architecture within a given context.</p>
+</blockquote>
+<h2 id="examples-of-architecture-patterns">Examples of Architecture Patterns:<a hidden class="anchor" aria-hidden="true" href="#examples-of-architecture-patterns">#</a></h2>
+<table style="color:#000000;">
+  <tr style="background-color:#edf2fb;">
+    <th>Architecture Pattern</th>
+    <th>Description</th>
+    <th>Focus Area</th>
+  </tr>
+  <tr style="background-color:#edf2fb;">
+    <td><button style="color:#000000;" onclick="toggleDetails('ntier')"><details><summary><strong>N-tier/Layered Architecture</strong></summary></details></button></td>
+    <td>Organizes software into layers, each responsible for a specific aspect (e.g., presentation, business logic, data access).</td>
+    <td><span>Separation of concerns across layers</span></td>
+  </tr>
+  <tr id="ntier" style="display:none;">
+    <td colspan="3">
+<h3 id="layered-architecture-flow">Layered Architecture Flow<a hidden class="anchor" aria-hidden="true" href="#layered-architecture-flow">#</a></h3>
+<p>The diagram represents the flow in an N-tier architecture where:</p>
+<ul>
+<li>The <strong>Presentation Layer</strong> interacts with the <strong>Business Logic Layer</strong>.</li>
+<li>The <strong>Business Logic Layer</strong> communicates with the <strong>Data Access Layer</strong>.</li>
+<li>The <strong>Data Access Layer</strong> accesses the <strong>Database (DB)</strong>.</li>
+</ul>
+<p>Each layer is visually distinct, demonstrating the separation of concerns in a typical multi-tier architecture.</p>
+<img src="/images/layered-architecture-diagram1.png" alt="Layered Architecture">
+<h3 id="architectural-issues">Architectural Issues<a hidden class="anchor" aria-hidden="true" href="#architectural-issues">#</a></h3>
+<p>In this architecture, a presentation layer directly accesses the data repository, as shown in the following code:</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-csharp" data-lang="csharp"><span style="display:flex;"><span><span style="color:#75715e">// Tier N-2 (e.g., Presentation Layer)</span>
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">var</span> user = _userRepository.GetById(userId);
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#75715e">// Tier N (Data Access Layer)</span>
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">public</span> <span style="color:#66d9ef">interface</span> <span style="color:#a6e22e">IUserRepository</span>
+</span></span><span style="display:flex;"><span>{
+</span></span><span style="display:flex;"><span>    User GetById(Guid id);
+</span></span><span style="display:flex;"><span>}
+</span></span></code></pre></div><p><strong>Transitive Layer Access</strong> - layers become dependent on each other, making the system harder to maintain and scale.</p>
+   </td>
+  </tr>
+  <tr style="background-color:#d7e3fc;">
+    <td><button style="color:#000000;" onclick="toggleDetails('hexagonal')"><details><summary><strong>Hexagonal/Ports and Adapters Architecture</strong></summary></details></button></td>
+    <td>Focuses on keeping the core logic independent of external factors (e.g., databases, UI, APIs).</td>
+    <td><span>Independence from external systems</span></td>
+  </tr>
+  <tr id="hexagonal" style="display:none;">
+    <td colspan="3">
+      <img src="/images/hexagonal-architecture-diagram.png" alt="Hexagonal Architecture Diagram">
+    </td>
+  </tr>
+  <tr style="background-color:#ccdbfd;">
+    <td><button style="color:#000000;" onclick="toggleDetails('microservices')"><details><summary><strong>Microservices Architecture</strong></summary></details></button></td>
+    <td>Structures applications as a collection of loosely coupled, independently deployable services.</td>
+    <td><span>Decoupling and scalability</span></td>
+  </tr>
+  <tr id="microservices" style="display:none;">
+    <td colspan="3">
+      <img src="/images/microservices-architecture-diagram.png" alt="Microservices Architecture Diagram">
+    </td>
+  </tr>
+  <tr style="background-color:#c1d3fe;">
+    <td><button style="color:#000000;" onclick="toggleDetails('clean')"><details><summary><strong>Clean Architecture</strong></summary></details></button></td>
+    <td>Emphasizes separating concerns and keeping core logic independent of infrastructure and frameworks.</td>
+    <td><span>Independence of core logic</span></td>
+  </tr>
+  <tr id="clean" style="display:none;">
+    <td colspan="3">
+<h3 id="clean-architecture">Clean Architecture<a hidden class="anchor" aria-hidden="true" href="#clean-architecture">#</a></h3>
+<p>Clean architecture separates the software into layers with a <strong>dependency rule</strong> that layers only point <strong>inwards</strong>.</p>
+<ul>
+<li><strong>Inner layers</strong> contain the <strong>business logic</strong>.</li>
+<li><strong>Outer layers</strong> contain <strong>infrastructure</strong> and <strong>interaction with the outer world</strong>.</li>
+</ul>
+<p>This structure helps maintain a clear separation of concerns and ensures that the core business logic is independent of external systems or user interface concerns.</p>
+<div style="display: flex; align-items: center;">
+  <img src="/images/clean-architecture-diagram1.png" alt="Clean Architecture 1" width="400">
+  <img src="/images/clean-architecture-diagram2.png" alt="Clean Architecture 2" width="300">
+</div>
+<h3 id="project-setup-script">Project Setup Script<a hidden class="anchor" aria-hidden="true" href="#project-setup-script">#</a></h3>
+<p>This script automates the creation of a .NET solution with multiple projects following a clean architecture pattern.</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-bash" data-lang="bash"><span style="display:flex;"><span><span style="color:#75715e">#!/bin/bash
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e"></span>
+</span></span><span style="display:flex;"><span><span style="color:#75715e"># Check if the required arguments are provided</span>
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">if</span> <span style="color:#f92672">[</span> $# -ne <span style="color:#ae81ff">2</span> <span style="color:#f92672">]</span>; <span style="color:#66d9ef">then</span>
+</span></span><span style="display:flex;"><span>    echo <span style="color:#e6db74">&#34;Usage: </span>$0<span style="color:#e6db74"> &lt;SolutionName&gt; &lt;ProjectName&gt;&#34;</span>
+</span></span><span style="display:flex;"><span>    exit <span style="color:#ae81ff">1</span>
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">fi</span>
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#75715e"># Assign arguments to variables</span>
+</span></span><span style="display:flex;"><span>SOLUTION_NAME<span style="color:#f92672">=</span>$1
+</span></span><span style="display:flex;"><span>PROJECT_NAME<span style="color:#f92672">=</span>$2
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#75715e"># Create the solution with the given SolutionName</span>
+</span></span><span style="display:flex;"><span>dotnet new sln --name <span style="color:#e6db74">&#34;</span>$SOLUTION_NAME<span style="color:#e6db74">&#34;</span>
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#75715e"># Create WebAPI project with the given ProjectName</span>
+</span></span><span style="display:flex;"><span>dotnet new webapi -o <span style="color:#e6db74">&#34;</span>$PROJECT_NAME<span style="color:#e6db74">.Api&#34;</span>
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#75715e"># Create class libraries for Application, Infrastructure, and Domain layers</span>
+</span></span><span style="display:flex;"><span>dotnet new classlib -o <span style="color:#e6db74">&#34;</span>$PROJECT_NAME<span style="color:#e6db74">.Application&#34;</span>
+</span></span><span style="display:flex;"><span>dotnet new classlib -o <span style="color:#e6db74">&#34;</span>$PROJECT_NAME<span style="color:#e6db74">.Infrastructure&#34;</span>
+</span></span><span style="display:flex;"><span>dotnet new classlib -o <span style="color:#e6db74">&#34;</span>$PROJECT_NAME<span style="color:#e6db74">.Domain&#34;</span>
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#75715e"># Add projects to the solution</span>
+</span></span><span style="display:flex;"><span>dotnet sln add <span style="color:#e6db74">&#34;</span>$PROJECT_NAME<span style="color:#e6db74">.Api/</span>$PROJECT_NAME<span style="color:#e6db74">.Api.csproj&#34;</span>
+</span></span><span style="display:flex;"><span>dotnet sln add <span style="color:#e6db74">&#34;</span>$PROJECT_NAME<span style="color:#e6db74">.Application/</span>$PROJECT_NAME<span style="color:#e6db74">.Application.csproj&#34;</span>
+</span></span><span style="display:flex;"><span>dotnet sln add <span style="color:#e6db74">&#34;</span>$PROJECT_NAME<span style="color:#e6db74">.Infrastructure/</span>$PROJECT_NAME<span style="color:#e6db74">.Infrastructure.csproj&#34;</span>
+</span></span><span style="display:flex;"><span>dotnet sln add <span style="color:#e6db74">&#34;</span>$PROJECT_NAME<span style="color:#e6db74">.Domain/</span>$PROJECT_NAME<span style="color:#e6db74">.Domain.csproj&#34;</span>
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#75715e"># Add references between projects</span>
+</span></span><span style="display:flex;"><span>dotnet add <span style="color:#e6db74">&#34;</span>$PROJECT_NAME<span style="color:#e6db74">.Api&#34;</span> reference <span style="color:#e6db74">&#34;</span>$PROJECT_NAME<span style="color:#e6db74">.Application&#34;</span>
+</span></span><span style="display:flex;"><span>dotnet add <span style="color:#e6db74">&#34;</span>$PROJECT_NAME<span style="color:#e6db74">.Infrastructure&#34;</span> reference <span style="color:#e6db74">&#34;</span>$PROJECT_NAME<span style="color:#e6db74">.Application&#34;</span>
+</span></span><span style="display:flex;"><span>dotnet add <span style="color:#e6db74">&#34;</span>$PROJECT_NAME<span style="color:#e6db74">.Application&#34;</span> reference <span style="color:#e6db74">&#34;</span>$PROJECT_NAME<span style="color:#e6db74">.Domain&#34;</span>
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#75715e"># Build the solution to verify everything is set up correctly</span>
+</span></span><span style="display:flex;"><span>dotnet build
+</span></span></code></pre></div><p>Run the script with the following arguments:</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-bash" data-lang="bash"><span style="display:flex;"><span>./script.sh &lt;SolutionName&gt; &lt;ProjectName&gt;
+</span></span></code></pre></div>  </tr>
+  <tr style="background-color:#b2c4fe;">
+    <td><button style="color:#000000;" onclick="toggleDetails('soa')"><details><summary><strong>Service-Oriented Architecture (SOA)</strong></summary></details></button></td>
+    <td>Breaks down systems into services that communicate over a network.</td>
+    <td><span>Distributed services over a network</span></td>
+  </tr>
+  <tr id="soa" style="display:none;">
+    <td colspan="3">
+      <img src="/images/soa-architecture-diagram.png" alt="SOA Architecture Diagram">
+    </td>
+  </tr>
+  <tr style="background-color:#a1b7ff;">
+    <td><button style="color:#000000;" onclick="toggleDetails('modular')"><details><summary><strong>Modular Monolith Architecture</strong></summary></details></button></td>
+    <td>Combines modular components within a single deployable unit, allowing easier refactoring and scaling.</td>
+    <td><span>Modularity within a single unit</span></td>
+  </tr>
+  <tr id="modular" style="display:none;">
+    <td colspan="3">
+      <img src="/images/modular-monolith-architecture-diagram.png" alt="Modular Monolith Architecture Diagram">
+    </td>
+  </tr>
+  <tr style="background-color:#97aaff;">
+    <td><button style="color:#000000;" onclick="toggleDetails('eventdriven')"><details><summary><strong>Event-Driven Architecture</strong></summary></details></button></td>
+    <td>Uses events as triggers for communication between decoupled components or services.</td>
+    <td><span>Asynchronous event handling</span></td>
+  </tr>
+  <tr id="eventdriven" style="display:none;">
+    <td colspan="3">
+      <img src="/images/event-driven-architecture-diagram.png" alt="Event-Driven Architecture Diagram">
+    </td>
+  </tr>
+  <tr style="background-color:#8d9dff;">
+    <td><button style="color:#000000;" onclick="toggleDetails('mvc')"><details><summary><strong>MVC, MVP, MVVM</strong></summary></details></button></td>
+    <td>Patterns for organizing the presentation layer in software, separating concerns between the model (data), view (UI), and controller/presenter (logic).</td>
+    <td><span>Presentation layer organization</span></td>
+  </tr>
+  <tr id="mvc" style="display:none;">
+    <td colspan="3">
+      <img src="/images/mvc-mvp-mvvm-architecture-diagram.png" alt="MVC, MVP, MVVM Architecture Diagram">
+    </td>
+  </tr>
+</table>
+<script>
+function toggleDetails(id) {
+  var element = document.getElementById(id);
+  if (element.style.display === "none") {
+    element.style.display = "table-row";
+  } else {
+    element.style.display = "none";
+  }
+}
+</script>
+
+
+  </div>
+
+  <footer class="post-footer">
+    <ul class="post-tags">
+      <li><a href="http://localhost:1313/tags/clean-architecture/">Clean Architecture</a></li>
+    </ul>
+<nav class="paginav">
+  <a class="prev" href="http://localhost:1313/posts/clean-architecture/global-error-handling/">
+    <span class="title">« Prev</span>
+    <br>
+    <span>Global Error Handling</span>
+  </a>
+</nav>
+
+  </footer>
+</article>
+    </main>
+
+    
+    
+
+    
+<footer class="footer">
+        <span>&copy; 2024 <a href="http://localhost:1313/">victoria notes</a></span> · 
+
+    <span>
+        Powered by
+        <a href="https://gohugo.io/" rel="noopener noreferrer" target="_blank">Hugo</a> &
+        <a href="https://github.com/adityatelange/hugo-PaperMod/" rel="noopener" target="_blank">PaperMod</a>
+    </span>
+</footer>
+<a href="#top" aria-label="go to top" title="Go to Top (Alt + G)" class="top-link" id="top-link" accesskey="g">
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 12 6" fill="currentColor">
+        <path d="M12 6H0l6-6z" />
+    </svg>
+</a>
+
+<script>
+    let menu = document.getElementById('menu')
+    if (menu) {
+        menu.scrollLeft = localStorage.getItem("menu-scroll-position");
+        menu.onscroll = function () {
+            localStorage.setItem("menu-scroll-position", menu.scrollLeft);
+        }
+    }
+
+    document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+        anchor.addEventListener("click", function (e) {
+            e.preventDefault();
+            var id = this.getAttribute("href").substr(1);
+            if (!window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+                document.querySelector(`[id='${decodeURIComponent(id)}']`).scrollIntoView({
+                    behavior: "smooth"
+                });
+            } else {
+                document.querySelector(`[id='${decodeURIComponent(id)}']`).scrollIntoView();
+            }
+            if (id === "top") {
+                history.replaceState(null, null, " ");
+            } else {
+                history.pushState(null, null, `#${id}`);
+            }
+        });
+    });
+
+</script>
+<script>
+    var mybutton = document.getElementById("top-link");
+    window.onscroll = function () {
+        if (document.body.scrollTop > 800 || document.documentElement.scrollTop > 800) {
+            mybutton.style.visibility = "visible";
+            mybutton.style.opacity = "1";
+        } else {
+            mybutton.style.visibility = "hidden";
+            mybutton.style.opacity = "0";
+        }
+    };
+
+</script>
+<script>
+    document.getElementById("theme-toggle").addEventListener("click", () => {
+        if (document.body.className.includes("dark")) {
+            document.body.classList.remove('dark');
+            localStorage.setItem("pref-theme", 'light');
+        } else {
+            document.body.classList.add('dark');
+            localStorage.setItem("pref-theme", 'dark');
+        }
+    })
+
+</script>
+</body>
+
+</html>

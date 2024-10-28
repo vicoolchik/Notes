@@ -9,7 +9,7 @@ tags = ['Clean Architecture']
 
 ## Introduction
 
-Error handling is essential in web application development to ensure that unhandled exceptions are appropriately managed and that clients receive meaningful error responses. In ASP.NET Core, global error handling can be achieved using several techniques, each with its advantages and suitable use cases. This article will guide you through four primary approaches:
+Error handling is essential in web application development to ensure that unhandled exceptions are appropriately managed and that clients receive meaningful error responses. In ASP.NET Core, global error handling can be achieved using several techniques, each with its advantages and suitable use cases. This article will guide you through primary approaches:
 
 1. **Error Handling Middleware**
 2. **Exception Filter Attribute**
